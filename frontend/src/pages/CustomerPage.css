@@ -544,3 +544,8 @@ body:has(.customer-360) {
   margin-top: 16px;
   cursor: pointer;
 }
+
+.c360-intervention-history { list-style: none; padding: 0 20px; margin: 0; }
+.c360-intervention-history li { padding: 16px 0; border-bottom: 1px solid var(--c360-line); }
+.c360-intervention-history li:last-child { border-bottom: 0; }
+.c360-intervention-history p { font-size: 12px; color: #b3bfd0; margin-top: 6px; }

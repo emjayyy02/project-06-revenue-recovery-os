@@ -5,9 +5,11 @@ import {
   executeIntervention,
   getInterventions,
   rejectIntervention,
+  recordInterventionOutcome,
 } from "../api/client";
 
-import type { Intervention } from "../types/api";
+import type { Intervention, RecoveryOutcome } from "../types/api";
+import "./ApprovalsPage.css";
 
 export function ApprovalsPage() {
   const [interventions, setInterventions] =
@@ -120,8 +122,21 @@ export function ApprovalsPage() {
     }
   }
 
+  async function handleOutcome(id: string, outcome: RecoveryOutcome) {
+    try {
+      setProcessingId(id);
+      setError(null);
+      await recordInterventionOutcome(id, outcome);
+      await loadInterventions();
+    } catch (error) {
+      setError(error instanceof Error ? error.message : "Failed to record outcome.");
+    } finally {
+      setProcessingId(null);
+    }
+  }
+
   if (loading) {
-    return <p>Loading approvals...</p>;
+    return <section className="approvals-page" aria-busy="true"><p role="status">Loading approvals...</p></section>;
   }
 
   const pending = interventions.filter(
@@ -135,7 +150,7 @@ export function ApprovalsPage() {
   );
 
   return (
-    <section>
+    <section className="approvals-page">
       <header>
         <h1>Approvals</h1>
 
@@ -146,7 +161,7 @@ export function ApprovalsPage() {
       </header>
 
       {error && (
-        <p>
+        <p role="alert">
           {error}
         </p>
       )}
@@ -339,9 +354,33 @@ export function ApprovalsPage() {
 
                   {/* SENT */}
                   {intervention.status === "sent" && (
-                    <p>
-                      Execution completed successfully.
-                    </p>
+                    <div className="outcome-controls">
+                      <p>Execution completed successfully.</p>
+                      <p><strong>Outcome:</strong>{" "}
+                        {intervention.outcome === null || intervention.outcome === "pending"
+                          ? "Pending"
+                          : intervention.outcome === "recovered" ? "Recovered"
+                            : intervention.outcome === "not_recovered" ? "Not Recovered" : intervention.outcome}
+                      </p>
+                      {intervention.outcome_recorded_at && (
+                        <p>Recorded {new Date(intervention.outcome_recorded_at).toLocaleString()}</p>
+                      )}
+                      {(intervention.outcome === null || intervention.outcome === "pending") && (
+                        <>
+                          <p className="outcome-note">Record the customer result once confirmed. This decision is final.</p>
+                          <div className="outcome-actions">
+                            <button type="button" disabled={processingId !== null}
+                              onClick={() => handleOutcome(intervention.id, "recovered")}>
+                              {isProcessing ? "Saving..." : "Mark Recovered"}
+                            </button>
+                            <button type="button" disabled={processingId !== null}
+                              onClick={() => handleOutcome(intervention.id, "not_recovered")}>
+                              {isProcessing ? "Saving..." : "Mark Not Recovered"}
+                            </button>
+                          </div>
+                        </>
+                      )}
+                    </div>
                   )}
 
                   {/* REJECTED */}

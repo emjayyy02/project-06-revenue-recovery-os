@@ -8,6 +8,7 @@ import {
   getCustomerSignals,
   createIntervention,
   getAiAssistance,
+  getInterventions,
 } from "../api/client";
 
 import type {
@@ -16,6 +17,7 @@ import type {
   RiskScore,
   RiskSignal,
   AiAssistance,
+  Intervention,
 } from "../types/api";
 
 import {
@@ -46,6 +48,29 @@ export function CustomerPage() {
   const [events, setEvents] = useState<CustomerEvent[]>([]);
   const [risk, setRisk] = useState<RiskScore | null>(null);
   const [signals, setSignals] = useState<RiskSignal[]>([]);
+  const [interventions, setInterventions] = useState<Intervention[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(true);
+  const [historyError, setHistoryError] = useState<string | null>(null);
+  const [historyCustomerId, setHistoryCustomerId] = useState<string>();
+
+  useEffect(() => {
+    if (!id) return;
+    let cancelled = false;
+    getInterventions().then(data => {
+      if (!cancelled) {
+        setInterventions(data.filter(intervention => intervention.customer_id === id));
+        setHistoryError(null);
+      }
+    }).catch(error => {
+      if (!cancelled) setHistoryError(error instanceof Error ? error.message : "Unable to load intervention history.");
+    }).finally(() => {
+      if (!cancelled) {
+        setHistoryLoading(false);
+        setHistoryCustomerId(id);
+      }
+    });
+    return () => { cancelled = true; };
+  }, [id]);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -203,7 +228,8 @@ if (!id) {
 
           console.log("Creating intervention:", payload);
 
-          await createIntervention(payload);
+          const created = await createIntervention(payload);
+          setInterventions(current => [created, ...current]);
 
           setApprovalMessage(
             "Approval requested successfully."
@@ -475,10 +501,24 @@ if (!id) {
             <div className="c360-section-heading">
               <h2 id="interventions-heading">Intervention history</h2>
             </div>
-            <EmptyState
-              title="No interventions yet"
-              description="No recovery interventions have been created yet. This section is reserved for intervention records once recovery execution is available."
-            />
+            {historyLoading || historyCustomerId !== id ? <p className="c360-empty" role="status">Loading intervention history…</p> :
+              historyError ? <p className="c360-empty" role="alert">{historyError} Refresh to try again.</p> :
+              interventions.length === 0 ? <EmptyState title="No interventions yet"
+                description="Recovery interventions will appear here once approval is requested." /> :
+              <ul className="c360-intervention-history">
+                {interventions.map(intervention => <li key={intervention.id}>
+                  <h3>{intervention.recovery_playbooks?.name ?? intervention.recommended_action ?? intervention.type}</h3>
+                  <p>Status: <StatusBadge value={intervention.status} /></p>
+                  <p>Outcome: {intervention.outcome === "recovered" ? "Recovered" :
+                    intervention.outcome === "not_recovered" ? "Not Recovered" :
+                    intervention.status === "sent" && (intervention.outcome === null || intervention.outcome === "pending")
+                      ? "Pending" : intervention.outcome ?? "Not recorded"}</p>
+                  {intervention.executed_at && <p>Executed {new Date(intervention.executed_at).toLocaleString()}</p>}
+                  {intervention.status === "sent" && <p>Execution completed successfully.</p>}
+                  {intervention.execution_error && <p>Execution error: {intervention.execution_error}</p>}
+                  {intervention.outcome_recorded_at && <p>Outcome recorded {new Date(intervention.outcome_recorded_at).toLocaleString()}</p>}
+                </li>)}
+              </ul>}
           </section>
         </div>
       </div>

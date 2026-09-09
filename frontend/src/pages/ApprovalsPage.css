@@ -1,0 +1,12 @@
+/* Keep M9 outcome controls readable without restyling the approval workflow. */
+.approvals-page { overflow-wrap: anywhere; }
+.outcome-controls { margin-block: 12px; }
+.outcome-controls .outcome-note { font-size: 13px; margin-block: 8px; }
+.outcome-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-block: 12px; }
+.outcome-actions button { font: inherit; font-size: 14px; padding: 9px 12px; cursor: pointer; }
+.outcome-actions button:disabled { cursor: wait; }
+.outcome-actions button:focus-visible { outline: 2px solid #91bafa; outline-offset: 3px; }
+@media (max-width: 720px) {
+  .app-shell:has(.approvals-page) { grid-template-columns: minmax(0, 1fr); }
+  .app-shell:has(.approvals-page) .app-content { min-width: 0; padding: 20px 16px; }
+}

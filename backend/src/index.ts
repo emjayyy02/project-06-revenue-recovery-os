@@ -6,6 +6,7 @@ import {
 } from "./lib/supabase";
 import { calculateRiskFromEvents } from "./services/risk-engine";
 import { generateAiAssistance } from "./services/ai-assistant";
+import { getAnalytics } from "./services/analytics";
 const corsHeaders = {
   "Access-Control-Allow-Origin": "http://localhost:5173",
   "Access-Control-Allow-Headers": "Content-Type",
@@ -51,6 +52,10 @@ const executionResultSchema = z.object({
   error: z.string().optional(),
 });
 
+const outcomeSchema = z.object({
+  outcome: z.enum(["recovered", "not_recovered"]),
+}).strict();
+
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     if (request.method === "OPTIONS") {
@@ -64,6 +69,55 @@ export default {
     const supabase = createSupabaseClient(env);
 
     try {
+      if (request.method === "GET" && url.pathname === "/api/analytics") {
+        return json({ data: await getAnalytics(supabase) });
+      }
+
+      const outcomeMatch = url.pathname.match(
+        /^\/api\/interventions\/([0-9a-f-]+)\/outcome$/i
+      );
+
+      if (request.method === "POST" && outcomeMatch) {
+        const result = outcomeSchema.safeParse(await request.json().catch(() => null));
+        if (!result.success) {
+          return json({ error: "Invalid outcome payload", details: result.error.flatten() }, 400);
+        }
+
+        const interventionId = outcomeMatch[1];
+        const { data: existing, error: existingError } = await supabase
+          .from("interventions")
+          .select("id, status, outcome")
+          .eq("id", interventionId)
+          .maybeSingle();
+
+        if (existingError) return json({ error: existingError.message }, 500);
+        if (!existing) return json({ error: "Intervention not found" }, 404);
+        if (existing.status !== "sent") {
+          return json({ error: "Only sent interventions can have a recovery outcome recorded" }, 409);
+        }
+        if (existing.outcome !== null && existing.outcome !== "pending") {
+          return json({ error: "This intervention outcome is already resolved" }, 409);
+        }
+
+        // Recheck eligibility in the same write that records both fields.
+        // A concurrent resolution must never overwrite the first decision.
+        const { data, error } = await supabase
+          .from("interventions")
+          .update({
+            outcome: result.data.outcome,
+            outcome_recorded_at: new Date().toISOString(),
+          })
+          .eq("id", interventionId)
+          .eq("status", "sent")
+          .or("outcome.is.null,outcome.eq.pending")
+          .select()
+          .maybeSingle();
+
+        if (error) return json({ error: error.message }, 500);
+        if (!data) return json({ error: "Intervention changed or its outcome was already resolved" }, 409);
+        return json({ data });
+      }
+
       // HEALTH
       if (
         request.method === "GET" &&

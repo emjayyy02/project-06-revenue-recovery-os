@@ -59,6 +59,7 @@ export interface Intervention {
   approved_at: string | null;
   executed_at: string | null;
   outcome: string | null;
+  outcome_recorded_at: string | null;
   created_at: string;
   execution_error: string | null;
   execution_attempts: number;
@@ -87,4 +88,27 @@ export interface AiAssistance {
 export interface AiAssistanceResponse {
   data: AiAssistance;
   provider: "openrouter" | "fallback";
+}
+
+export type RecoveryOutcome = "recovered" | "not_recovered";
+export type RiskLevel = "low" | "medium" | "high" | "critical";
+
+export interface Analytics {
+  total_customers: number;
+  at_risk_customers: number;
+  critical_customers: number;
+  revenue_exposure: number;
+  recovered_customers: number;
+  /** Percentage, 0–100. */
+  recovery_success_rate: number;
+  risk_distribution: Record<RiskLevel | "uncalculated", number>;
+  revenue_exposure_by_risk: Record<RiskLevel, number>;
+  intervention_outcomes: { pending: number; recovered: number; not_recovered: number };
+  recent_recovery_activity: {
+    intervention_id: string;
+    customer_id: string;
+    company: string;
+    outcome: "sent" | RecoveryOutcome;
+    occurred_at: string;
+  }[];
 }

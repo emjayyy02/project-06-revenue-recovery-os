@@ -1,65 +1,31 @@
-import { useEffect, useState } from "react";
-
-import { getCustomers } from "../api/client";
-import type { Customer } from "../types/api";
+import { Link } from "react-router-dom";
+import { useAnalytics } from "../api/useAnalytics";
+import { AnalyticsState, RecoveryActivity, RevenueByRisk, RiskDistribution } from "../components/AnalyticsSummary";
+import { currency, percentage } from "../components/analyticsFormatting";
+import "./Analytics.css";
 
 export function DashboardPage() {
-  const [customers, setCustomers] = useState<Customer[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    getCustomers()
-      .then(setCustomers)
-      .finally(() => setLoading(false));
-  }, []);
-
-  if (loading) {
-    return <p>Loading dashboard...</p>;
-  }
-
-  const atRisk = customers.filter(
-    (customer) =>
-      customer.customer_health_status === "at_risk"
-  );
-
-  const recovering = customers.filter(
-    (customer) =>
-      customer.customer_health_status === "recovering"
-  );
-
-  const revenueExposure = atRisk.reduce(
-    (total, customer) =>
-      total + customer.account_value,
-    0
-  );
-
-  return (
-    <section>
-      <h1>Dashboard</h1>
-
-      <div className="metric-grid">
-        <article>
-          <span>Total Customers</span>
-          <strong>{customers.length}</strong>
-        </article>
-
-        <article>
-          <span>At Risk</span>
-          <strong>{atRisk.length}</strong>
-        </article>
-
-        <article>
-          <span>Recovering</span>
-          <strong>{recovering.length}</strong>
-        </article>
-
-        <article>
-          <span>Revenue Exposure</span>
-          <strong>
-            ₱{revenueExposure.toLocaleString()}
-          </strong>
-        </article>
-      </div>
-    </section>
-  );
+  const { data, error, loading, refresh } = useAnalytics();
+  return <section className="analytics-page" aria-busy={loading}>
+    <header className="analytics-header">
+      <div><p className="analytics-eyebrow">Revenue Recovery OS</p><h1>Dashboard</h1>
+        <p>Current exposure. Measurable recovery.</p></div>
+      <Link to="/analytics">View analytics →</Link>
+    </header>
+    {loading || error || !data ? <AnalyticsState loading={loading} error={error} refresh={refresh} /> : <>
+      {data.total_customers === 0 && <p className="analytics-state">No customers yet. Metrics will appear as customer activity is recorded.</p>}
+      <dl className="analytics-kpis">
+        {[
+          ["Total Customers", data.total_customers.toLocaleString(), "All customer accounts"],
+          ["At Risk", data.at_risk_customers.toLocaleString(), "Latest risk: High + Critical"],
+          ["Critical", data.critical_customers.toLocaleString(), "Latest risk: Critical"],
+          ["Revenue Exposure", currency(data.revenue_exposure), "High + Critical account value"],
+          ["Recovered Customers", data.recovered_customers.toLocaleString(), "Unique accounts with a recovery"],
+          ["Recovery Success Rate", percentage(data.recovery_success_rate), "Across resolved interventions"],
+        ].map(([title, value, note]) => <div key={title}><dt>{title}</dt><dd>{value}</dd><p>{note}</p></div>)}
+      </dl>
+      <div className="analytics-grid"><RiskDistribution data={data} /><RevenueByRisk data={data} /></div>
+      <RecoveryActivity data={data} />
+    </>}
+  </section>;
 }

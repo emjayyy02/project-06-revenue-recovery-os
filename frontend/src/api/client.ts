@@ -6,6 +6,8 @@ import type {
   RiskScore,
   RiskSignal,
   Intervention,
+  Analytics,
+  RecoveryOutcome,
 } from "../types/api";
 
 const API_BASE_URL =
@@ -165,4 +167,22 @@ export async function executeIntervention(id: string) {
   }
 
   return result;
+}
+
+export async function getAnalytics() {
+  const response = await request<ApiResponse<Analytics>>("/api/analytics");
+  return response.data;
+}
+
+export async function recordInterventionOutcome(id: string, outcome: RecoveryOutcome) {
+  const response = await fetch(`${API_BASE_URL}/api/interventions/${id}/outcome`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ outcome }),
+  });
+  const result = await response.json();
+  if (!response.ok) {
+    throw new Error(result.error ?? `Request failed: ${response.status}`);
+  }
+  return (result as ApiResponse<Intervention>).data;
 }
