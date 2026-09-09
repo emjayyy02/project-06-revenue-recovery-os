@@ -4,6 +4,7 @@ import type { Database } from "../types/database";
 export interface Env {
   SUPABASE_URL: string;
   SUPABASE_SECRET_KEY: string;
+  OPENROUTER_API_KEY?: string;
 }
 
 export function createSupabaseClient(env: Env) {

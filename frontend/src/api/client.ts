@@ -1,4 +1,5 @@
 import type {
+  AiAssistanceResponse,
   ApiResponse,
   Customer,
   CustomerEvent,
@@ -130,4 +131,19 @@ export async function rejectIntervention(id: string) {
     (await response.json()) as ApiResponse<Intervention>;
 
   return result.data;
+}
+
+export async function getAiAssistance(id: string) {
+  const response = await fetch(
+    `${API_BASE_URL}/api/customers/${id}/ai-assistance`,
+    {
+      method: "POST",
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(`Request failed: ${response.status}`);
+  }
+
+  return (await response.json()) as AiAssistanceResponse;
 }

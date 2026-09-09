@@ -13,33 +13,59 @@ export function ApprovalsPage() {
     useState<Intervention[]>([]);
 
   const [loading, setLoading] = useState(true);
+
   const [error, setError] =
     useState<string | null>(null);
 
   const [processingId, setProcessingId] =
     useState<string | null>(null);
 
+  // Used after approve/reject actions
   const loadInterventions = useCallback(async () => {
     try {
-      setError(null);
-
       const data = await getInterventions();
 
       setInterventions(data);
+      setError(null);
     } catch (error) {
       setError(
         error instanceof Error
           ? error.message
           : "Failed to load interventions."
       );
-    } finally {
-      setLoading(false);
     }
   }, []);
 
+  // Initial page load
   useEffect(() => {
-    loadInterventions();
-  }, [loadInterventions]);
+    let cancelled = false;
+
+    getInterventions()
+      .then((data) => {
+        if (cancelled) return;
+
+        setInterventions(data);
+        setError(null);
+      })
+      .catch((error) => {
+        if (cancelled) return;
+
+        setError(
+          error instanceof Error
+            ? error.message
+            : "Failed to load interventions."
+        );
+      })
+      .finally(() => {
+        if (cancelled) return;
+
+        setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   async function handleApprove(id: string) {
     try {

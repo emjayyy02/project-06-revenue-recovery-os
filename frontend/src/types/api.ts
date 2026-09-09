@@ -74,3 +74,14 @@ export interface Intervention {
     action_type: string;
   } | null;
 }
+
+export interface AiAssistance {
+  risk_summary: string;
+  recommended_next_action: string;
+  draft_message: string;
+}
+
+export interface AiAssistanceResponse {
+  data: AiAssistance;
+  provider: "openrouter" | "fallback";
+}

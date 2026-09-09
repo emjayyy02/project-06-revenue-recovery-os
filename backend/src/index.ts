@@ -5,7 +5,7 @@ import {
   type Env,
 } from "./lib/supabase";
 import { calculateRiskFromEvents } from "./services/risk-engine";
-
+import { generateAiAssistance } from "./services/ai-assistant";
 const corsHeaders = {
   "Access-Control-Allow-Origin": "http://localhost:5173",
   "Access-Control-Allow-Headers": "Content-Type",
@@ -329,6 +329,31 @@ export default {
 
     const intervention = result.data;
 
+      const { data: existingPending, error: existingPendingError } =
+        await supabase
+        .from("interventions")
+        .select("id")
+        .eq("customer_id", intervention.customer_id)
+        .eq("playbook_id", intervention.playbook_id)
+        .eq("status", "pending_approval")
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (existingPendingError) {
+        return json({ error: existingPendingError.message }, 500);
+      }
+
+      if (existingPending) {
+        return json(
+          {
+            error:
+              "A pending intervention already exists for this customer and playbook",
+          },
+          409
+        );
+  }
+
     const { data, error } = await supabase
         .from("interventions")
         .insert({
@@ -438,6 +463,90 @@ export default {
       return json({ data });
     }
 
+    const aiAssistanceMatch = url.pathname.match(
+      /^\/api\/customers\/([0-9a-f-]+)\/ai-assistance$/i
+);
+
+    if (request.method === "POST" && aiAssistanceMatch) {
+      const customerId = aiAssistanceMatch[1];
+
+      const { data: customer, error: customerError } = await supabase
+        .from("customers")
+        .select("*")
+        .eq("id", customerId)
+        .maybeSingle();
+
+      if (customerError) {
+        return json({ error: customerError.message }, 500);
+      }
+
+      if (!customer) {
+        return json({ error: "Customer not found" }, 404);
+      }
+
+      const { data: risk, error: riskError } = await supabase
+        .from("risk_scores")
+        .select("*")
+        .eq("customer_id", customerId)
+        .order("calculated_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (riskError) {
+        return json({ error: riskError.message }, 500);
+      }
+
+      const { data: signals, error: signalsError } = await supabase
+        .from("risk_signals")
+        .select("*")
+        .eq("customer_id", customerId)
+        .eq("active", true)
+        .order("weight", { ascending: false });
+
+      if (signalsError) {
+        return json({ error: signalsError.message }, 500);
+      }
+
+      const { data: events, error: eventsError } = await supabase
+        .from("customer_events")
+        .select("*")
+        .eq("customer_id", customerId)
+        .order("occurred_at", { ascending: false })
+        .limit(10);
+
+      if (eventsError) {
+        return json({ error: eventsError.message }, 500);
+      }
+
+      const result = await generateAiAssistance(
+        {
+          customer_name: customer.full_name,
+          company: customer.company,
+          account_value: customer.account_value,
+          owner: customer.owner,
+          risk_score: risk?.score ?? null,
+          risk_level: risk?.risk_level ?? null,
+
+          signals: (signals ?? []).map((signal) => ({
+            signal_type: signal.signal_type,
+            weight: signal.weight,
+            explanation: signal.explanation,
+          })),
+
+          recent_events: (events ?? []).map((event) => ({
+            event_type: event.event_type,
+            description: event.description,
+            occurred_at: event.occurred_at,
+          })),
+        },
+        env.OPENROUTER_API_KEY
+      );
+
+      return json({
+        data: result.data,
+        provider: result.provider,
+      });
+}
       return json({ error: "Not Found" }, 404);
     } catch (error) {
       console.error(error);

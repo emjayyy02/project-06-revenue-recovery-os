@@ -7,6 +7,7 @@ import {
   getCustomerRisk,
   getCustomerSignals,
   createIntervention,
+  getAiAssistance,
 } from "../api/client";
 
 import type {
@@ -14,6 +15,7 @@ import type {
   CustomerEvent,
   RiskScore,
   RiskSignal,
+  AiAssistance,
 } from "../types/api";
 
 import {
@@ -54,41 +56,64 @@ export function CustomerPage() {
   const [approvalMessage, setApprovalMessage] =
   useState<string | null>(null);
 
+  const [aiAssistance, setAiAssistance] =
+  useState<AiAssistance | null>(null);
+
+  const [aiProvider, setAiProvider] =
+    useState<"openrouter" | "fallback" | null>(null);
+
+  const [loadingAi, setLoadingAi] =
+    useState(false);
+
+  const [aiError, setAiError] =
+    useState<string | null>(null);
+
   useEffect(() => {
-    if (!id) {
-      setError("Customer ID is missing.");
+  if (!id) {
+    return;
+  }
+
+  async function loadCustomer360() {
+    try {
+      const [
+        customerData,
+        eventsData,
+        riskData,
+        signalsData,
+      ] = await Promise.all([
+        getCustomer(id!),
+        getCustomerEvents(id!),
+        getCustomerRisk(id!),
+        getCustomerSignals(id!),
+      ]);
+
+      setCustomer(customerData);
+      setEvents(eventsData);
+      setRisk(riskData);
+      setSignals(signalsData);
+      setError(null);
+    } catch (error) {
+      setError(
+        error instanceof Error
+          ? error.message
+          : "Failed to load customer."
+      );
+    } finally {
       setLoading(false);
-      return;
     }
+  }
 
-    async function loadCustomer360() {
-      try {
-        setLoading(true);
-        setError(null);
+  loadCustomer360();
+}, [id]);
 
-        const [customerData, eventsData, riskData, signalsData] =
-          await Promise.all([
-            getCustomer(id!),
-            getCustomerEvents(id!),
-            getCustomerRisk(id!),
-            getCustomerSignals(id!),
-          ]);
-
-        setCustomer(customerData);
-        setEvents(eventsData);
-        setRisk(riskData);
-        setSignals(signalsData);
-      } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "Failed to load customer.",
-        );
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    loadCustomer360();
-  }, [id]);
+if (!id) {
+  return (
+    <section>
+      <h1>Customer 360</h1>
+      <p>Customer ID is missing.</p>
+    </section>
+  );
+}
 
   if (loading) {
     return (
@@ -194,6 +219,28 @@ export function CustomerPage() {
         } finally {
           // VERY IMPORTANT
           setRequestingApproval(false);
+        }
+      }
+
+      async function handleGenerateAiAssistance() {
+        if (!id) return;
+
+        try {
+          setLoadingAi(true);
+          setAiError(null);
+
+          const result = await getAiAssistance(id);
+
+          setAiAssistance(result.data);
+          setAiProvider(result.provider);
+        } catch (error) {
+          setAiError(
+            error instanceof Error
+              ? error.message
+              : "Failed to generate assistance."
+          );
+        } finally {
+          setLoadingAi(false);
         }
       }
 
@@ -356,6 +403,69 @@ export function CustomerPage() {
                     : "A calculated risk level is needed before a recovery playbook can be recommended."
                 }
               />
+            )}
+          </section>
+          <section className="c360-ai">
+            <div>
+              <h2>AI Assistance</h2>
+              <p>
+                Generates a concise risk summary, recommended next action,
+                and outreach draft from the current customer context.
+              </p>
+            </div>
+
+            {!aiAssistance && (
+              <button
+                type="button"
+                onClick={handleGenerateAiAssistance}
+                disabled={loadingAi}
+              >
+                {loadingAi
+                  ? "Generating..."
+                  : "Generate AI Assistance"}
+              </button>
+            )}
+
+            {aiError && (
+              <p>{aiError}</p>
+            )}
+
+            {aiAssistance && (
+              <div>
+                <p>
+                  <strong>Provider:</strong>{" "}
+                  {aiProvider === "openrouter"
+                    ? "OpenRouter"
+                    : "Fallback"}
+                </p>
+
+                <article>
+                  <h3>Risk Summary</h3>
+                  <p>{aiAssistance.risk_summary}</p>
+                </article>
+
+                <article>
+                  <h3>Recommended Next Action</h3>
+                  <p>
+                    {aiAssistance.recommended_next_action}
+                  </p>
+                </article>
+
+                <article>
+                  <h3>Draft Outreach</h3>
+                  <p>{aiAssistance.draft_message}</p>
+                </article>
+
+                <button
+                  type="button"
+                  onClick={handleGenerateAiAssistance}
+                  disabled={loadingAi}
+                >
+                  {loadingAi
+                    ? "Regenerating..."
+                    : "Regenerate"}
+                </button>
+              </div>
             )}
           </section>
           <section

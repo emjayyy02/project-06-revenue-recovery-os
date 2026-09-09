@@ -1,4 +1,4 @@
-import type { Database, Json } from "../types/database";
+import type { Database } from "../types/database";
 
 type CustomerEvent =
   Database["public"]["Tables"]["customer_events"]["Row"];

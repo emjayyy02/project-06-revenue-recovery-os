@@ -528,3 +528,19 @@ body:has(.customer-360) {
     grid-template-rows: auto 1fr;
   }
 }
+
+.c360-ai {
+  margin-top: 24px;
+  padding: 20px;
+  border: 1px solid #2a3442;
+  border-radius: 8px;
+}
+
+.c360-ai article {
+  margin-top: 16px;
+}
+
+.c360-ai button {
+  margin-top: 16px;
+  cursor: pointer;
+}
