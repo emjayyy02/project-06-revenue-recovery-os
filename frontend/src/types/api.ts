@@ -15,3 +15,35 @@ export interface Customer {
 export interface ApiResponse<T> {
   data: T;
 }
+
+export interface CustomerEvent {
+  id: string;
+  customer_id: string;
+  event_type: string;
+  source: string;
+  event_value: unknown;
+  description: string | null;
+  occurred_at: string;
+  metadata: unknown;
+  created_at: string;
+}
+
+export interface RiskScore {
+  id: string;
+  customer_id: string;
+  score: number;
+  risk_level: string;
+  calculated_at: string;
+}
+
+export interface RiskSignal {
+  id: string;
+  customer_id: string;
+  source_event_id: string | null;
+  signal_type: string;
+  weight: number;
+  severity: string;
+  explanation: string;
+  active: boolean;
+  created_at: string;
+}

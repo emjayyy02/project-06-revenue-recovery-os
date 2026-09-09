@@ -190,7 +190,6 @@ export default {
     },
   });
 }
-
       // CREATE CUSTOMER EVENT
       if (
         request.method === "POST" &&
@@ -230,6 +229,48 @@ export default {
         }
 
         return json({ data }, 201);
+      }
+    
+      const riskMatch = url.pathname.match(
+        /^\/api\/customers\/([0-9a-f-]+)\/risk$/i
+);
+
+      if (request.method === "GET" && riskMatch) {
+        const customerId = riskMatch[1];
+
+        const { data, error } = await supabase
+          .from("risk_scores")
+          .select("*")
+          .eq("customer_id", customerId)
+          .order("calculated_at", { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+      if (error) {
+        return json({ error: error.message }, 500);
+      }
+      return json({ data });
+    }
+
+    const signalsMatch = url.pathname.match(
+  /^\/api\/customers\/([0-9a-f-]+)\/signals$/i
+);
+
+      if (request.method === "GET" && signalsMatch) {
+        const customerId = signalsMatch[1];
+
+        const { data, error } = await supabase
+          .from("risk_signals")
+          .select("*")
+          .eq("customer_id", customerId)
+          .eq("active", true)
+          .order("weight", { ascending: false });
+
+        if (error) {
+          return json({ error: error.message }, 500);
+        }
+
+        return json({ data });
       }
 
       return json({ error: "Not Found" }, 404);
