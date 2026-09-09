@@ -4,6 +4,7 @@ import type {
   CustomerEvent,
   RiskScore,
   RiskSignal,
+  Intervention,
 } from "../types/api";
 
 const API_BASE_URL =
@@ -57,4 +58,76 @@ export async function getCustomerSignals(id: string) {
   );
 
   return response.data;
+}
+
+export async function getInterventions() {
+  const response = await request<ApiResponse<Intervention[]>>(
+    "/api/interventions"
+  );
+
+  return response.data;
+}
+
+export async function createIntervention(payload: {
+  customer_id: string;
+  playbook_id: string;
+  type: string;
+  recommended_action: string;
+  draft_message?: string;
+}) {
+  const response = await fetch(
+    `${API_BASE_URL}/api/interventions`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(`Request failed: ${response.status}`);
+  }
+
+  const result =
+    (await response.json()) as ApiResponse<Intervention>;
+
+  return result.data;
+}
+
+export async function approveIntervention(id: string) {
+  const response = await fetch(
+    `${API_BASE_URL}/api/interventions/${id}/approve`,
+    {
+      method: "POST",
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(`Request failed: ${response.status}`);
+  }
+
+  const result =
+    (await response.json()) as ApiResponse<Intervention>;
+
+  return result.data;
+}
+
+export async function rejectIntervention(id: string) {
+  const response = await fetch(
+    `${API_BASE_URL}/api/interventions/${id}/reject`,
+    {
+      method: "POST",
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(`Request failed: ${response.status}`);
+  }
+
+  const result =
+    (await response.json()) as ApiResponse<Intervention>;
+
+  return result.data;
 }

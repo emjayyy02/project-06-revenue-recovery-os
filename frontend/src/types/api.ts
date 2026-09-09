@@ -47,3 +47,30 @@ export interface RiskSignal {
   active: boolean;
   created_at: string;
 }
+
+export interface Intervention {
+  id: string;
+  customer_id: string;
+  playbook_id: string;
+  type: string;
+  status: string;
+  recommended_action: string | null;
+  draft_message: string | null;
+  approved_at: string | null;
+  executed_at: string | null;
+  outcome: string | null;
+  created_at: string;
+
+  customers?: {
+    full_name: string;
+    company: string;
+    account_value: number;
+    owner: string | null;
+  } | null;
+
+  recovery_playbooks?: {
+    name: string;
+    requires_approval: boolean;
+    action_type: string;
+  } | null;
+}

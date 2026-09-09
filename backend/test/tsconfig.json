@@ -1,13 +1,19 @@
 {
   "extends": "../tsconfig.json",
+
   "compilerOptions": {
     "moduleResolution": "bundler",
+
     "types": [
-      "@cloudflare/vitest-plugin/types"
+      "@cloudflare/vitest-plugin/types",
+      "vitest/globals"
     ]
   },
+
   "include": [
     "./**/*.ts",
     "../src/worker-configuration.d.ts"
-  ]
+  ],
+
+  "exclude": []
 }

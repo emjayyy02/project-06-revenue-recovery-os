@@ -19,8 +19,16 @@ function json(data: unknown, status = 200) {
   });
 }
 
+const interventionSchema = z.object({
+    customer_id: z.string().guid(),
+    playbook_id: z.string().guid(),
+    type: z.string().min(1),
+    recommended_action: z.string().min(1),
+    draft_message: z.string().optional(),
+      });
+
 const eventSchema = z.object({
-  customer_id: z.string().uuid(),
+  customer_id: z.string().guid(),
   event_type: z.enum([
     "login",
     "usage_decline",
@@ -99,6 +107,7 @@ export default {
 
         return json({ data });
       }
+
 
       // SINGLE CUSTOMER
       const customerMatch = url.pathname.match(
@@ -272,6 +281,162 @@ export default {
 
         return json({ data });
       }
+
+      if (
+        request.method === "GET" &&
+        url.pathname === "/api/interventions"
+      ) {
+        const { data, error } = await supabase
+          .from("interventions")
+          .select(`
+            *,
+            customers (
+              full_name,
+              company,
+              account_value,
+              owner
+            ),
+            recovery_playbooks (
+              name,
+              requires_approval,
+              action_type
+            )
+          `)
+          .order("created_at", { ascending: false });
+
+        if (error) {
+          return json({ error: error.message }, 500);
+        }
+        
+      return json({ data });
+}
+    if (
+      request.method === "POST" &&
+      url.pathname === "/api/interventions"
+    ) {
+      const body = await request.json();
+      const result = interventionSchema.safeParse(body);
+
+      if (!result.success) {
+        return json(
+          {
+            error: "Invalid intervention payload",
+            details: result.error.flatten(),
+          },
+          400
+        );
+      }
+
+    const intervention = result.data;
+
+    const { data, error } = await supabase
+        .from("interventions")
+        .insert({
+          customer_id: intervention.customer_id,
+          playbook_id: intervention.playbook_id,
+          type: intervention.type,
+          status: "pending_approval",
+          recommended_action: intervention.recommended_action,
+          draft_message: intervention.draft_message ?? null,
+        })
+        .select()
+        .single();
+
+      if (error) {
+        return json({ error: error.message }, 500);
+      }
+
+      return json({ data }, 201);
+    }
+
+    const approveMatch = url.pathname.match(
+      /^\/api\/interventions\/([0-9a-f-]+)\/approve$/i
+);
+
+    if (request.method === "POST" && approveMatch) {
+      const interventionId = approveMatch[1];
+
+      const { data: existing, error: existingError } = await supabase
+        .from("interventions")
+        .select("*")
+        .eq("id", interventionId)
+        .maybeSingle();
+
+      if (existingError) {
+        return json({ error: existingError.message }, 500);
+      }
+
+      if (!existing) {
+        return json({ error: "Intervention not found" }, 404);
+      }
+
+      if (existing.status !== "pending_approval") {
+        return json(
+          { error: "Only pending interventions can be approved" },
+          409
+        );
+      }
+
+      const { data, error } = await supabase
+        .from("interventions")
+        .update({
+          status: "approved",
+          approved_at: new Date().toISOString(),
+        })
+        .eq("id", interventionId)
+        .select()
+        .single();
+
+      if (error) {
+        return json({ error: error.message }, 500);
+      }
+
+      return json({ data });
+    }
+
+    const rejectMatch = url.pathname.match(
+      /^\/api\/interventions\/([0-9a-f-]+)\/reject$/i
+);
+
+    if (request.method === "POST" && rejectMatch) {
+      const interventionId = rejectMatch[1];
+
+      const { data: existing, error: existingError } = await supabase
+        .from("interventions")
+        .select("*")
+        .eq("id", interventionId)
+        .maybeSingle();
+
+      if (existingError) {
+        return json({ error: existingError.message }, 500);
+      }
+
+      if (!existing) {
+        return json({ error: "Intervention not found" }, 404);
+      }
+
+      if (existing.status !== "pending_approval") {
+        return json(
+          { error: "Only pending interventions can be rejected" },
+          409
+        );
+      }
+
+      const { data, error } = await supabase
+        .from("interventions")
+        .update({
+          status: "rejected",
+        })
+        .eq("id", interventionId)
+        .select()
+        .single();
+
+      if (error) {
+        return json({ error: error.message }, 500);
+      }
+
+      return json({ data });
+    }
 
       return json({ error: "Not Found" }, 404);
     } catch (error) {
