@@ -1,34 +1,183 @@
-/**
- * Welcome to Cloudflare Workers! This is your first worker.
- *
- * - Run `npm run dev` in your terminal to start a development server
- * - Open a browser tab at http://localhost:8787/ to see your worker in action
- * - Run `npm run deploy` to publish your worker
- *
- * Bind resources to your worker in `wrangler.jsonc`. After adding bindings, a type definition for the
- * `Env` object can be regenerated with `npm run cf-typegen`.
- *
- * Learn more at https://developers.cloudflare.com/workers/
- */
+import { z } from "zod";
+import type { Json } from "./types/database";
+import {
+  createSupabaseClient,
+  type Env,
+} from "./lib/supabase";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "http://localhost:5173",
+  "Access-Control-Allow-Headers": "Content-Type",
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+};
+
+function json(data: unknown, status = 200) {
+  return Response.json(data, {
+    status,
+    headers: corsHeaders,
+  });
+}
+
+const eventSchema = z.object({
+  customer_id: z.string().uuid(),
+  event_type: z.enum([
+    "login",
+    "usage_decline",
+    "login_inactivity",
+    "payment_failed",
+    "negative_support",
+    "negative_feedback",
+    "customer_reply",
+    "successful_payment",
+    "usage_recovered",
+  ]),
+  source: z.string().min(1),
+  event_value: z.unknown().optional(),
+  description: z.string().optional(),
+  occurred_at: z.string().datetime(),
+});
 
 export default {
-  async fetch(request: Request): Promise<Response> {
-    const url = new URL(request.url);
-
-    if (url.pathname === "/api/health") {
-      return Response.json({
-        status: "ok",
-        service: "revenue-recovery-api",
+  async fetch(request: Request, env: Env): Promise<Response> {
+    if (request.method === "OPTIONS") {
+      return new Response(null, {
+        status: 204,
+        headers: corsHeaders,
       });
     }
 
-    return Response.json(
-      {
-        error: "Not Found",
-      },
-      {
-        status: 404,
+    const url = new URL(request.url);
+    const supabase = createSupabaseClient(env);
+
+    try {
+      // HEALTH
+      if (
+        request.method === "GET" &&
+        url.pathname === "/api/health"
+      ) {
+        return json({
+          status: "ok",
+          service: "revenue-recovery-api",
+        });
       }
-    );
+
+      // ALL CUSTOMERS
+      if (
+        request.method === "GET" &&
+        url.pathname === "/api/customers"
+      ) {
+        const { data, error } = await supabase
+          .from("customers")
+          .select("*")
+          .order("company");
+
+        if (error) {
+          return json({ error: error.message }, 500);
+        }
+
+        return json({ data });
+      }
+
+      // CUSTOMER EVENTS
+      const eventsMatch = url.pathname.match(
+        /^\/api\/customers\/([0-9a-f-]+)\/events$/i
+      );
+
+      if (request.method === "GET" && eventsMatch) {
+        const customerId = eventsMatch[1];
+
+        const { data, error } = await supabase
+          .from("customer_events")
+          .select("*")
+          .eq("customer_id", customerId)
+          .order("occurred_at", { ascending: false });
+
+        if (error) {
+          return json({ error: error.message }, 500);
+        }
+
+        return json({ data });
+      }
+
+      // SINGLE CUSTOMER
+      const customerMatch = url.pathname.match(
+        /^\/api\/customers\/([0-9a-f-]+)$/i
+      );
+
+      if (request.method === "GET" && customerMatch) {
+        const customerId = customerMatch[1];
+
+        const { data, error } = await supabase
+          .from("customers")
+          .select("*")
+          .eq("id", customerId)
+          .maybeSingle();
+
+        if (error) {
+          return json({ error: error.message }, 500);
+        }
+
+        if (!data) {
+          return json(
+            { error: "Customer not found" },
+            404
+          );
+        }
+
+        return json({ data });
+      }
+
+      // CREATE CUSTOMER EVENT
+      if (
+        request.method === "POST" &&
+        url.pathname === "/api/events"
+      ) {
+        const body = await request.json();
+        const result = eventSchema.safeParse(body);
+
+        if (!result.success) {
+          return json(
+            {
+              error: "Invalid event payload",
+              details: result.error.flatten(),
+            },
+            400
+          );
+        }
+
+        const event = result.data;
+
+        const { data, error } = await supabase
+          .from("customer_events")
+          .insert({
+            customer_id: event.customer_id,
+            event_type: event.event_type,
+            source: event.source,
+            event_value:
+              (event.event_value as Json | undefined) ?? null,
+            description: event.description ?? null,
+            occurred_at: event.occurred_at,
+          })
+          .select()
+          .single();
+
+        if (error) {
+          return json({ error: error.message }, 500);
+        }
+
+        return json({ data }, 201);
+      }
+
+      return json({ error: "Not Found" }, 404);
+    } catch (error) {
+      console.error(error);
+
+      return json(
+        {
+          error: "Internal Server Error",
+        },
+        500
+      );
+    }
   },
 };

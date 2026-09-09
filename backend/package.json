@@ -10,10 +10,14 @@
     "cf-typegen": "wrangler types"
   },
   "devDependencies": {
-    "@cloudflare/vitest-plugin": "^1.0.0",
+    "@cloudflare/vitest-plugin": "^0.0.0",
     "@types/node": "^26.5.0",
     "typescript": "^5.5.2",
     "vitest": "~4.1.0",
-    "wrangler": "^4.130.0"
+    "wrangler": "^4.15.2"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.116.0",
+    "zod": "^4.5.4"
   }
 }
