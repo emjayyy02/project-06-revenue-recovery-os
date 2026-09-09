@@ -4,6 +4,7 @@ import {
   createSupabaseClient,
   type Env,
 } from "./lib/supabase";
+import { calculateRiskFromEvents } from "./services/risk-engine";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "http://localhost:5173",
@@ -126,6 +127,69 @@ export default {
 
         return json({ data });
       }
+
+	const recalculateMatch = url.pathname.match(
+  		/^\/api\/customers\/([0-9a-f-]+)\/risk\/recalculate$/i
+);
+
+	if (request.method === "POST" && recalculateMatch) {
+  		const customerId = recalculateMatch[1];
+
+  		const { data: events, error: eventsError } = await supabase
+    		.from("customer_events")
+    		.select("*")
+    		.eq("customer_id", customerId)
+    		.order("occurred_at", { ascending: true });
+
+ 	if (eventsError) {
+    	return json({ error: eventsError.message }, 500);
+  }
+
+  		const result = calculateRiskFromEvents(
+    		customerId,
+    		events ?? []
+  );
+
+ 		const { error: clearSignalsError } = await supabase
+    		.from("risk_signals")
+    		.delete()
+    		.eq("customer_id", customerId);
+
+  	if (clearSignalsError) {
+    	return json({ error: clearSignalsError.message }, 500);
+  }
+
+  	if (result.signals.length > 0) {
+    	const { error: signalsError } = await supabase
+      	.from("risk_signals")
+      	.insert(result.signals);
+
+    if (signalsError) {
+      return json({ error: signalsError.message }, 500);
+    }
+  }
+
+  		const { data: riskScore, error: scoreError } = await supabase
+    		.from("risk_scores")
+    		.insert({
+     			customer_id: customerId,
+      			score: result.score,
+      	risk_level: result.riskLevel,
+    		})
+    		.select()
+    		.single();
+
+  	if (scoreError) {
+    	return json({ error: scoreError.message }, 500);
+  }
+
+  		return json({
+    		data: {
+      		score: riskScore,
+      		signals: result.signals,
+    },
+  });
+}
 
       // CREATE CUSTOMER EVENT
       if (
