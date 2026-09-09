@@ -5,6 +5,7 @@ export interface Env {
   SUPABASE_URL: string;
   SUPABASE_SECRET_KEY: string;
   OPENROUTER_API_KEY?: string;
+  N8N_INTERVENTION_WEBHOOK_URL?: string;
 }
 
 export function createSupabaseClient(env: Env) {

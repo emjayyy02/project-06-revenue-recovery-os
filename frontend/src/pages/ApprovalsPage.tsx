@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import {
   approveIntervention,
+  executeIntervention,
   getInterventions,
   rejectIntervention,
 } from "../api/client";
@@ -20,7 +21,6 @@ export function ApprovalsPage() {
   const [processingId, setProcessingId] =
     useState<string | null>(null);
 
-  // Used after approve/reject actions
   const loadInterventions = useCallback(async () => {
     try {
       const data = await getInterventions();
@@ -36,7 +36,6 @@ export function ApprovalsPage() {
     }
   }, []);
 
-  // Initial page load
   useEffect(() => {
     let cancelled = false;
 
@@ -103,6 +102,24 @@ export function ApprovalsPage() {
     }
   }
 
+  async function handleExecute(id: string) {
+    try {
+      setProcessingId(id);
+      setError(null);
+
+      await executeIntervention(id);
+      await loadInterventions();
+    } catch (error) {
+      setError(
+        error instanceof Error
+          ? error.message
+          : "Failed to execute intervention."
+      );
+    } finally {
+      setProcessingId(null);
+    }
+  }
+
   if (loading) {
     return <p>Loading approvals...</p>;
   }
@@ -121,13 +138,22 @@ export function ApprovalsPage() {
     <section>
       <header>
         <h1>Approvals</h1>
+
         <p>
           Review sensitive recovery interventions before
           execution.
         </p>
       </header>
 
-      {error && <p>{error}</p>}
+      {error && (
+        <p>
+          {error}
+        </p>
+      )}
+
+      {/* =========================
+          PENDING APPROVAL
+      ========================== */}
 
       <section>
         <h2>Pending Approval</h2>
@@ -177,7 +203,9 @@ export function ApprovalsPage() {
                     processingId === intervention.id
                   }
                 >
-                  Approve
+                  {processingId === intervention.id
+                    ? "Processing..."
+                    : "Approve"}
                 </button>
 
                 <button
@@ -189,7 +217,9 @@ export function ApprovalsPage() {
                     processingId === intervention.id
                   }
                 >
-                  Reject
+                  {processingId === intervention.id
+                    ? "Processing..."
+                    : "Reject"}
                 </button>
               </article>
             ))}
@@ -197,39 +227,133 @@ export function ApprovalsPage() {
         )}
       </section>
 
+      {/* =========================
+          EXECUTION / HISTORY
+      ========================== */}
+
       <section>
-        <h2>Decision History</h2>
+        <h2>Decision & Execution History</h2>
 
         {decided.length === 0 ? (
           <p>No approval decisions yet.</p>
         ) : (
           <div>
-            {decided.map((intervention) => (
-              <article key={intervention.id}>
-                <strong>
-                  {intervention.customers?.company ??
-                    "Unknown Customer"}
-                </strong>
+            {decided.map((intervention) => {
+              const isProcessing =
+                processingId === intervention.id;
 
-                <p>
-                  {intervention.recovery_playbooks?.name ??
-                    intervention.recommended_action}
-                </p>
+              return (
+                <article key={intervention.id}>
+                  <h3>
+                    {intervention.customers?.company ??
+                      "Unknown Customer"}
+                  </h3>
 
-                <p>
-                  Status: {intervention.status}
-                </p>
-
-                {intervention.approved_at && (
                   <p>
-                    Approved:{" "}
-                    {new Date(
-                      intervention.approved_at
-                    ).toLocaleString()}
+                    {intervention.customers?.full_name}
                   </p>
-                )}
-              </article>
-            ))}
+
+                  <p>
+                    <strong>Playbook:</strong>{" "}
+                    {intervention.recovery_playbooks
+                      ?.name ??
+                      intervention.recommended_action}
+                  </p>
+
+                  <p>
+                    <strong>Status:</strong>{" "}
+                    {intervention.status}
+                  </p>
+
+                  {intervention.approved_at && (
+                    <p>
+                      <strong>Approved:</strong>{" "}
+                      {new Date(
+                        intervention.approved_at
+                      ).toLocaleString()}
+                    </p>
+                  )}
+
+                  {intervention.executed_at && (
+                    <p>
+                      <strong>Executed:</strong>{" "}
+                      {new Date(
+                        intervention.executed_at
+                      ).toLocaleString()}
+                    </p>
+                  )}
+
+                  {intervention.execution_attempts !== undefined && (
+                    <p>
+                      <strong>Execution Attempts:</strong>{" "}
+                      {intervention.execution_attempts}
+                    </p>
+                  )}
+
+                  {intervention.execution_error && (
+                    <p>
+                      <strong>Execution Error:</strong>{" "}
+                      {intervention.execution_error}
+                    </p>
+                  )}
+
+                  {/* APPROVED → EXECUTE */}
+                  {intervention.status === "approved" && (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        handleExecute(intervention.id)
+                      }
+                      disabled={isProcessing}
+                    >
+                      {isProcessing
+                        ? "Starting..."
+                        : "Execute"}
+                    </button>
+                  )}
+
+                  {/* FAILED → RETRY */}
+                  {intervention.status === "failed" && (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        handleExecute(intervention.id)
+                      }
+                      disabled={isProcessing}
+                    >
+                      {isProcessing
+                        ? "Retrying..."
+                        : "Retry"}
+                    </button>
+                  )}
+
+                  {/* EXECUTING */}
+                  {intervention.status === "executing" && (
+                    <button
+                      type="button"
+                      disabled
+                    >
+                      Executing...
+                    </button>
+                  )}
+
+                  {/* SENT */}
+                  {intervention.status === "sent" && (
+                    <p>
+                      Execution completed successfully.
+                    </p>
+                  )}
+
+                  {/* REJECTED */}
+                  {intervention.status === "rejected" && (
+                    <p>
+                      This intervention was rejected and
+                      cannot be executed.
+                    </p>
+                  )}
+                </article>
+              );
+            })}
           </div>
         )}
       </section>

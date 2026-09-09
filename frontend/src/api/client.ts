@@ -147,3 +147,22 @@ export async function getAiAssistance(id: string) {
 
   return (await response.json()) as AiAssistanceResponse;
 }
+
+export async function executeIntervention(id: string) {
+  const response = await fetch(
+    `${API_BASE_URL}/api/interventions/${id}/execute`,
+    {
+      method: "POST",
+    }
+  );
+
+  const result = await response.json();
+
+  if (!response.ok) {
+    throw new Error(
+      result.error ?? `Request failed: ${response.status}`
+    );
+  }
+
+  return result;
+}

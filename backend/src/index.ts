@@ -46,6 +46,11 @@ const eventSchema = z.object({
   occurred_at: z.string().datetime(),
 });
 
+const executionResultSchema = z.object({
+  status: z.enum(["sent", "failed"]),
+  error: z.string().optional(),
+});
+
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     if (request.method === "OPTIONS") {
@@ -547,6 +552,203 @@ export default {
         provider: result.provider,
       });
 }
+
+    const executeMatch = url.pathname.match(
+      /^\/api\/interventions\/([0-9a-f-]+)\/execute$/i
+    );
+
+    if (request.method === "POST" && executeMatch) {
+      const interventionId = executeMatch[1];
+
+      if (!env.N8N_INTERVENTION_WEBHOOK_URL) {
+        return json(
+          { error: "n8n execution webhook is not configured" },
+          503
+        );
+      }
+
+      const { data: intervention, error: interventionError } =
+        await supabase
+          .from("interventions")
+          .select(`
+            *,
+            customers (
+              full_name,
+              email,
+              company,
+              account_value,
+              owner
+            ),
+            recovery_playbooks (
+              name,
+              action_type
+            )
+          `)
+          .eq("id", interventionId)
+          .maybeSingle();
+
+      if (interventionError) {
+        return json({ error: interventionError.message }, 500);
+      }
+
+      if (!intervention) {
+        return json({ error: "Intervention not found" }, 404);
+      }
+
+      if (
+        intervention.status !== "approved" &&
+        intervention.status !== "failed"
+      ) {
+        return json(
+          {
+            error:
+              "Only approved or failed interventions can be executed",
+          },
+          409
+        );
+      }
+
+      const nextAttempt =
+        (intervention.execution_attempts ?? 0) + 1;
+
+      const { error: updateError } = await supabase
+        .from("interventions")
+        .update({
+          status: "executing",
+          execution_attempts: nextAttempt,
+          execution_error: null,
+          last_execution_at: new Date().toISOString(),
+        })
+        .eq("id", interventionId);
+
+      if (updateError) {
+        return json({ error: updateError.message }, 500);
+      }
+
+      try {
+        const n8nResponse = await fetch(
+          env.N8N_INTERVENTION_WEBHOOK_URL,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              intervention_id: intervention.id,
+              customer: intervention.customers,
+              playbook: intervention.recovery_playbooks,
+              type: intervention.type,
+              recommended_action:
+                intervention.recommended_action,
+              draft_message: intervention.draft_message,
+              attempt: nextAttempt,
+            }),
+          }
+        );
+
+        if (!n8nResponse.ok) {
+          throw new Error(
+            `n8n webhook returned ${n8nResponse.status}`
+          );
+        }
+
+        return json(
+          {
+            data: {
+              intervention_id: interventionId,
+              status: "executing",
+              attempt: nextAttempt,
+            },
+          },
+          202
+        );
+      } catch (error) {
+        const message =
+          error instanceof Error
+            ? error.message
+            : "Unknown execution error";
+
+        await supabase
+          .from("interventions")
+          .update({
+            status: "failed",
+            execution_error: message,
+          })
+          .eq("id", interventionId);
+
+        return json(
+          {
+            error: "Failed to start automation",
+            details: message,
+          },
+          502
+        );
+      }
+    }
+
+    const executionResultMatch = url.pathname.match(
+      /^\/api\/interventions\/([0-9a-f-]+)\/execution-result$/i
+    );
+
+    if (
+      request.method === "POST" &&
+      executionResultMatch
+    ) {
+      const interventionId = executionResultMatch[1];
+
+      const body = await request.json();
+      const result = executionResultSchema.safeParse(body);
+
+      if (!result.success) {
+        return json(
+          {
+            error: "Invalid execution result",
+            details: result.error.flatten(),
+          },
+          400
+        );
+      }
+
+      const { data: existing, error: existingError } =
+        await supabase
+          .from("interventions")
+          .select("id, status")
+          .eq("id", interventionId)
+          .maybeSingle();
+
+      if (existingError) {
+        return json({ error: existingError.message }, 500);
+      }
+
+      if (!existing) {
+        return json({ error: "Intervention not found" }, 404);
+      }
+
+      const { data, error } = await supabase
+        .from("interventions")
+        .update({
+          status: result.data.status,
+          executed_at:
+            result.data.status === "sent"
+              ? new Date().toISOString()
+              : null,
+          execution_error:
+            result.data.status === "failed"
+              ? result.data.error ??
+                "Automation execution failed"
+              : null,
+        })
+        .eq("id", interventionId)
+        .select()
+        .single();
+
+      if (error) {
+        return json({ error: error.message }, 500);
+      }
+
+      return json({ data });
+    }
+
       return json({ error: "Not Found" }, 404);
     } catch (error) {
       console.error(error);

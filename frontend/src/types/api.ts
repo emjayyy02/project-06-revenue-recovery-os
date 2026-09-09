@@ -60,6 +60,9 @@ export interface Intervention {
   executed_at: string | null;
   outcome: string | null;
   created_at: string;
+  execution_error: string | null;
+  execution_attempts: number;
+  last_execution_at: string | null;
 
   customers?: {
     full_name: string;
