@@ -1,0 +1,192 @@
+{
+  "name": "Revenue Recovery OS - Intervention Executor",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "YOUR_N8N_WEBHOOK_PATH",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -656,
+        -48
+      ],
+      "id": "cf3afdbf-3d16-4d83-9ed9-ba61cc52ee60",
+      "name": "TriggerRequest"
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $json.body ?? $json;\n\nconst errors = [];\n\nif (!data.intervention_id) {\n  errors.push(\"intervention_id is required\");\n}\n\nif (!data.customer?.company) {\n  errors.push(\"customer.company is required\");\n}\n\nif (!data.customer?.full_name) {\n  errors.push(\"customer.full_name is required\");\n}\n\nif (!data.playbook?.name) {\n  errors.push(\"playbook.name is required\");\n}\n\nif (!data.playbook?.action_type) {\n  errors.push(\"playbook.action_type is required\");\n}\n\nif (!Number.isInteger(data.attempt) || data.attempt < 1) {\n  errors.push(\"attempt must be a positive integer\");\n}\n\nreturn [\n  {\n    json: {\n      ...data,\n      is_valid: errors.length === 0,\n      validation_errors: errors,\n    },\n  },\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -400,
+        -48
+      ],
+      "id": "f8a6582f-8969-4cb3-9bfe-738045388964",
+      "name": "Validate Payload"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "736b3e7d-e1a9-4d5e-bddc-61942f6d0aca",
+              "leftValue": "={{ $json.is_valid }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -176,
+        -48
+      ],
+      "id": "832a926c-c316-4ad4-82b8-b0df643813d8",
+      "name": "IF VALID?"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "SLACK_CHANNEL_ID",
+          "mode": "id"
+        },
+        "text": "=🚨 Revenue Recovery Alert\n\nCustomer: {{ $json.customer.company }}\nContact: {{ $json.customer.full_name }}\nAccount Value: {{ $json.customer.account_value }}\nOwner: {{ $json.customer.owner }}\n\nPlaybook: {{ $json.playbook.name }}\nAction Type: {{ $json.playbook.action_type }}\n\nRecommended Action:\n{{ $json.recommended_action }}\n\nExecution Attempt:\n{{ $json.attempt }}\n\nIntervention ID:\n{{ $json.intervention_id }}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.7,
+      "position": [
+        80,
+        -144
+      ],
+      "id": "8e2b7de9-d8d1-43f9-94f4-00e66933e1f1",
+      "name": "Notify Slack"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://YOUR_BACKEND.example/api/interventions/{{ $('TriggerRequest').item.json.body.intervention_id }}/execution-result",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"status\": \"sent\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        368,
+        -144
+      ],
+      "id": "d9a1097a-a9d0-4918-b979-30216aaa56ad",
+      "name": "Success Callback"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://YOUR_BACKEND.example/api/interventions/{{ $('TriggerRequest').item.json.body.intervention_id }}/execution-result",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"status\": \"failed\",\n  \"error\": \"{{ $json.validation_errors.join(', ') }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        368,
+        80
+      ],
+      "id": "4d4b4fe5-b375-462e-8e5d-3d473b0663e3",
+      "name": "Failure Callback"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "TriggerRequest": {
+      "main": [
+        [
+          {
+            "node": "Validate Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Payload": {
+      "main": [
+        [
+          {
+            "node": "IF VALID?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF VALID?": {
+      "main": [
+        [
+          {
+            "node": "Notify Slack",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Failure Callback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify Slack": {
+      "main": [
+        [
+          {
+            "node": "Success Callback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "tags": []
+}

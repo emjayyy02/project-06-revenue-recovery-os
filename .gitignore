@@ -27,3 +27,6 @@ Thumbs.db
 .codex
 .impeccable
 PRODUCT.md
+
+# Private local workflow exports
+.private-workflows/
