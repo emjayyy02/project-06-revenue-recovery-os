@@ -1,0 +1,29 @@
+/* Operations views use the Customer 360 / Analytics surfaces and type scale. */
+.operations-page { --c360-muted: var(--rr-muted); max-width: 1320px; margin: auto; color-scheme: var(--rr-scheme); overflow-wrap: anywhere; }
+.operations-page, .operations-page * { box-sizing: border-box; }
+.operations-page h1, .operations-page h2, .operations-page h3 { color: var(--rr-text); font-family: "Segoe UI", sans-serif; font-weight: 600; letter-spacing: 0; }
+.operations-page h1 { font-size: clamp(26px, 3vw, 36px); line-height: 1.2; letter-spacing: -.8px; margin: 8px 0; }
+.operations-page h2 { font-size: 16px; line-height: 1.4; margin: 0; }
+.operations-page h3 { font-size: 16px; line-height: 1.4; margin: 0; }
+.operations-header { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding-bottom: 24px; border-bottom: 1px solid var(--rr-line); margin-bottom: 24px; }
+.operations-header p, .operations-muted { color: var(--rr-muted); font-size: 13px; }
+.operations-header .operations-eyebrow { font-size: 10px; text-transform: uppercase; letter-spacing: 1.3px; }
+.operations-page a { color: var(--rr-blue); text-underline-offset: 4px; }
+.operations-page a:hover { color: var(--rr-text); }
+.operations-page button { min-height: 38px; padding: 8px 14px; border: 1px solid var(--rr-control-line); border-radius: 4px; color: var(--rr-text); background: var(--rr-control); font: inherit; font-size: 13px; cursor: pointer; }
+.operations-page button:hover:not(:disabled) { background: var(--rr-hover); border-color: var(--rr-control-hover-line); }
+.operations-page button.primary { background: var(--rr-blue); color: var(--rr-bg); border-color: var(--rr-blue); font-weight: 600; }
+.operations-page button.primary:hover:not(:disabled) { background: var(--rr-primary-hover); }
+.operations-page button.destructive { background: transparent; color: var(--rr-red); border-color: var(--rr-red-line); }
+.operations-page button:disabled { opacity: .55; cursor: not-allowed; }
+.operations-state { padding: 24px; border: 1px solid var(--rr-line); background: var(--rr-surface); border-radius: 6px; margin-bottom: 20px; }
+.operations-state p { color: var(--rr-muted); margin-top: 6px; font-size: 13px; }
+.operations-state button { margin-top: 16px; }
+.operations-state > .c360-empty { padding: 0; }
+.operations-error { border-left: 1px solid var(--rr-red); }
+.operations-section-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
+.operations-count { color: var(--rr-muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+@media (max-width: 720px) {
+  .operations-header { flex-direction: column; align-items: start; gap: 12px; }
+  .operations-state { padding: 20px 16px; }
+}

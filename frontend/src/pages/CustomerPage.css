@@ -1,6 +1,6 @@
 /* Keep the Customer 360 presentation isolated from the other milestone pages. */
 body:has(.customer-360) {
-  background: #10151c;
+  background: var(--rr-bg);
 }
 #root:has(.customer-360) {
   width: 100%;
@@ -11,7 +11,7 @@ body:has(.customer-360) {
   display: grid;
   grid-template-columns: 220px minmax(0, 1fr);
   min-height: 100svh;
-  color: #e5eaf1;
+  color: var(--rr-text);
   font:
     14px/1.55 "Segoe UI",
     sans-serif;
@@ -19,18 +19,18 @@ body:has(.customer-360) {
 }
 .app-shell:has(.customer-360) .sidebar {
   padding: 32px 20px;
-  border-right: 1px solid #2b3542;
-  background: #141b24;
+  border-right: 1px solid var(--rr-line);
+  background: var(--rr-sidebar);
 }
 .app-shell:has(.customer-360) .sidebar h2 {
-  color: #e5eaf1;
+  color: var(--rr-text);
   font-size: 18px;
   line-height: 1.4;
   font-weight: 650;
   margin: 0 0 8px;
 }
 .app-shell:has(.customer-360) .sidebar p {
-  color: #9baabd;
+  color: var(--rr-muted);
   font-size: 12px;
 }
 .app-shell:has(.customer-360) .sidebar nav {
@@ -40,34 +40,34 @@ body:has(.customer-360) {
 }
 .app-shell:has(.customer-360) .sidebar a {
   padding: 9px 12px;
-  color: #aab7c8;
+  color: var(--rr-low);
   text-decoration: none;
   border-radius: 4px;
 }
 .app-shell:has(.customer-360) .sidebar a.active {
-  color: #e5eaf1;
-  background: #253448;
-  box-shadow: inset 2px 0 #91add4;
+  color: var(--rr-text);
+  background: var(--rr-nav);
+  box-shadow: inset 2px 0 var(--rr-blue);
 }
 .app-shell:has(.customer-360) .sidebar a:hover {
-  background: #202c3b;
-  color: #fff;
+  background: var(--rr-control);
+  color: var(--rr-text);
 }
 .app-shell:has(.customer-360) .app-content {
   padding: 28px 36px 48px;
   min-width: 0;
 }
 .app-shell:has(.customer-360) a:focus-visible {
-  outline: 2px solid #91bafa;
+  outline: 2px solid var(--rr-blue);
   outline-offset: 4px;
   border-radius: 2px;
 }
 .customer-360 {
-  --c360-muted: #a2b0c2;
-  --c360-line: #2b3542;
+  --c360-muted: var(--rr-muted);
+  --c360-line: var(--rr-line);
   max-width: 1320px;
   margin: auto;
-  color-scheme: dark;
+  color-scheme: var(--rr-scheme);
   overflow-wrap: anywhere;
 }
 .customer-360 * {
@@ -77,7 +77,7 @@ body:has(.customer-360) {
 .customer-360 h2,
 .customer-360 h3,
 .customer-360 h4 {
-  color: #e5eaf1;
+  color: var(--rr-text);
   font-family: "Segoe UI", sans-serif;
   letter-spacing: 0;
 }
@@ -112,11 +112,11 @@ body:has(.customer-360) {
   margin-bottom: 24px;
 }
 .c360-back {
-  color: #b6c9e2;
+  color: var(--rr-blue);
   text-decoration: none;
 }
 .c360-back:hover {
-  color: #fff;
+  color: var(--rr-text);
   text-decoration: underline;
 }
 .c360-account {
@@ -135,29 +135,29 @@ body:has(.customer-360) {
   color: var(--c360-muted);
 }
 .c360-contact {
-  color: #bac5d3;
+  color: var(--rr-muted);
   font-size: 15px;
 }
 .c360-risk {
   min-width: 210px;
-  border-left: 2px solid #586b83;
+  border-left: 2px solid var(--rr-neutral-line);
   padding-left: 24px;
 }
 .c360-risk[data-level="critical"] {
-  border-color: #e7989d;
+  border-color: var(--rr-red);
 }
 .c360-risk[data-level="high"] {
-  border-color: #e3b08b;
+  border-color: var(--rr-amber);
 }
 .c360-risk[data-level="low"] {
-  border-color: #86c9b3;
+  border-color: var(--rr-green);
 }
 .c360-risk-label {
   display: flex;
   gap: 16px;
   justify-content: space-between;
   align-items: center;
-  color: #bac5d3;
+  color: var(--rr-muted);
   font-size: 12px;
 }
 .customer-360 .c360-score {
@@ -210,10 +210,10 @@ body:has(.customer-360) {
   display: inline-flex;
   align-items: center;
   padding: 2px 8px;
-  border: 1px solid #3b4859;
+  border: 1px solid var(--rr-control-line);
   border-radius: 4px;
-  color: #c6d1df;
-  background: #222d3b;
+  color: var(--rr-muted);
+  background: var(--rr-neutral-surface);
   font-size: 10px;
   line-height: 1.7;
   font-weight: 650;
@@ -221,25 +221,26 @@ body:has(.customer-360) {
   text-transform: uppercase;
 }
 .c360-badge--critical {
-  color: #f2a7ad;
-  background: #35252c;
-  border-color: #63404b;
+  color: var(--rr-red);
+  background: var(--rr-red-surface);
+  border-color: var(--rr-red-line);
 }
 .c360-badge--high {
-  color: #edbb95;
-  background: #332b26;
-  border-color: #5f493b;
+  color: var(--rr-amber);
+  background: var(--rr-amber-surface);
+  border-color: var(--rr-amber-line);
 }
 .c360-badge--medium {
-  color: #dfcc94;
-  background: #302e23;
-  border-color: #554f36;
+  color: var(--rr-amber);
+  background: var(--rr-amber-surface);
+  border-color: var(--rr-amber-line);
 }
 .c360-badge--low {
-  color: #9bdac2;
-  background: #1d302d;
-  border-color: #36574d;
+  color: var(--rr-green);
+  background: var(--rr-green-surface);
+  border-color: var(--rr-green-line);
 }
+.c360-badge--info { color: var(--rr-blue); background: var(--rr-nav); border-color: var(--rr-control-line); }
 .c360-columns {
   display: grid;
   grid-template-columns: minmax(0, 1.65fr) minmax(280px, 1fr);
@@ -255,7 +256,7 @@ body:has(.customer-360) {
 .c360-panel {
   border: 1px solid var(--c360-line);
   border-radius: 6px;
-  background: #171e28;
+  background: var(--rr-surface);
   min-width: 0;
 }
 .c360-section-heading {
@@ -300,7 +301,7 @@ body:has(.customer-360) {
 }
 .c360-signal p {
   grid-column: 1;
-  color: #b3bfd0;
+  color: var(--rr-muted);
   font-size: 12px;
 }
 .c360-weight {
@@ -333,7 +334,7 @@ body:has(.customer-360) {
 .c360-event {
   position: relative;
   padding: 0 0 24px 20px;
-  border-left: 1px solid #3b4859;
+  border-left: 1px solid var(--rr-control-line);
 }
 .c360-event:last-child {
   border-color: transparent;
@@ -345,7 +346,7 @@ body:has(.customer-360) {
   top: 7px;
   width: 7px;
   height: 7px;
-  background: #96abc5;
+  background: var(--rr-blue);
   border-radius: 50%;
 }
 .c360-event-heading {
@@ -361,7 +362,7 @@ body:has(.customer-360) {
   padding-top: 2px;
 }
 .c360-event p {
-  color: #b3bfd0;
+  color: var(--rr-muted);
   font-size: 12px;
 }
 .c360-source {
@@ -380,7 +381,7 @@ body:has(.customer-360) {
 }
 .c360-action-body > p:not(.c360-eyebrow),
 .c360-steps {
-  color: #b3bfd0;
+  color: var(--rr-muted);
   font-size: 12px;
 }
 .c360-action-body h4 {
@@ -402,7 +403,7 @@ body:has(.customer-360) {
 }
 .c360-approval > span {
   font-size: 11px;
-  color: #d6c499;
+  color: var(--rr-amber);
 }
 .c360-approval button {
   display: block;
@@ -413,9 +414,9 @@ body:has(.customer-360) {
     600 13px "Segoe UI",
     sans-serif;
   border-radius: 4px;
-  border: 1px solid #475c78;
-  color: #aebed3;
-  background: #28374b;
+  border: 1px solid var(--rr-control-line);
+  color: var(--rr-muted);
+  background: var(--rr-control);
   cursor: pointer;
 }
 .c360-approval p {
@@ -443,7 +444,7 @@ body:has(.customer-360) {
 }
 .c360-skeleton {
   height: 170px;
-  background: #1d2734;
+  background: var(--rr-track);
   border-radius: 6px;
   margin-top: 24px;
 }
@@ -472,7 +473,7 @@ body:has(.customer-360) {
   .app-shell:has(.customer-360) .sidebar {
     padding: 16px 20px;
     border-right: 0;
-    border-bottom: 1px solid #2b3542;
+    border-bottom: 1px solid var(--rr-line);
   }
   .app-shell:has(.customer-360) .sidebar h2 {
     font-size: 16px;
@@ -532,7 +533,7 @@ body:has(.customer-360) {
 .c360-ai {
   margin-top: 24px;
   padding: 20px;
-  border: 1px solid #2a3442;
+  border: 1px solid var(--rr-line);
   border-radius: 8px;
 }
 
@@ -542,10 +543,18 @@ body:has(.customer-360) {
 
 .c360-ai button {
   margin-top: 16px;
+  padding: 10px 16px;
+  border: 1px solid var(--rr-control-line);
+  border-radius: 4px;
+  background: var(--rr-control);
+  color: var(--rr-text);
+  font: inherit;
   cursor: pointer;
 }
+.customer-360 button:disabled { opacity: .55; cursor: not-allowed; }
+.customer-360 button:focus-visible { outline: 2px solid var(--rr-blue); outline-offset: 4px; }
 
 .c360-intervention-history { list-style: none; padding: 0 20px; margin: 0; }
 .c360-intervention-history li { padding: 16px 0; border-bottom: 1px solid var(--c360-line); }
 .c360-intervention-history li:last-child { border-bottom: 0; }
-.c360-intervention-history p { font-size: 12px; color: #b3bfd0; margin-top: 6px; }
+.c360-intervention-history p { font-size: 12px; color: var(--rr-muted); margin-top: 6px; }

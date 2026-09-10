@@ -1,12 +1,54 @@
-/* Keep M9 outcome controls readable without restyling the approval workflow. */
-.approvals-page { overflow-wrap: anywhere; }
-.outcome-controls { margin-block: 12px; }
-.outcome-controls .outcome-note { font-size: 13px; margin-block: 8px; }
-.outcome-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-block: 12px; }
-.outcome-actions button { font: inherit; font-size: 14px; padding: 9px 12px; cursor: pointer; }
-.outcome-actions button:disabled { cursor: wait; }
-.outcome-actions button:focus-visible { outline: 2px solid #91bafa; outline-offset: 3px; }
+/* Decision queue: warm pending rail, compact technical and outcome history. */
+.queue-summary { display: flex; flex-wrap: wrap; gap: 16px 28px; padding: 0 0 22px; color: var(--rr-muted); font-size: 12px; }
+.queue-summary strong { font-size: 20px; color: var(--rr-text); font-weight: 600; margin-right: 5px; font-variant-numeric: tabular-nums; }
+.queue-summary > span:first-child strong { color: var(--rr-amber); }
+.approval-feedback:empty { display: none; }
+.approval-feedback { margin-bottom: 16px; color: var(--rr-blue); font-size: 13px; }
+.approval-queue { margin-bottom: 32px; }
+.approval-history { padding-top: 24px; border-top: 1px solid var(--rr-line); }
+.approval-cards { display: grid; gap: 16px; }
+.intervention-card { min-width: 0; padding: 18px 20px; background: var(--rr-surface); border: 0; border-left: 1px solid var(--rr-blue); border-radius: 0; }
+.intervention-card--pending { border-left-color: var(--rr-amber); }
+.intervention-card[data-status="rejected"] { border-left-color: var(--rr-neutral-line); }
+.intervention-card[data-status="failed"], .intervention-card[data-outcome="not_recovered"] { border-left-color: var(--rr-red); }
+.intervention-card[data-outcome="recovered"] { border-left-color: var(--rr-green); }
+.intervention-heading { display: flex; align-items: start; justify-content: space-between; gap: 16px; }
+.intervention-heading > div { min-width: 0; }
+.intervention-heading > .c360-badge { flex-shrink: 0; }
+.intervention-heading h3 a { text-decoration: none; color: var(--rr-text); }
+.intervention-heading h3 a:hover { text-decoration: underline; }
+.intervention-heading p { color: var(--rr-muted); font-size: 11px; margin-top: 3px; }
+.intervention-details { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 16px 0; }
+.intervention-details:empty { display: none; }
+.intervention-details dt, .intervention-playbook > span, .intervention-recommendation > span { color: var(--rr-muted); font-size: 10px; }
+.intervention-details dd { margin: 4px 0 0; font-size: 12px; font-variant-numeric: tabular-nums; }
+.intervention-details .intervention-value { font-size: 20px; font-weight: 600; }
+.intervention-playbook { margin-top: 14px; }
+.intervention-playbook p { margin-top: 4px; font-size: 13px; font-weight: 600; }
+.intervention-recommendation { padding: 14px 0 0; margin-top: 14px; border-top: 1px solid var(--rr-line); }
+.intervention-recommendation p { font-size: 12px; margin-top: 5px; white-space: pre-wrap; }
+.intervention-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; padding-top: 18px; }
+.execution-controls { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; padding-top: 12px; border-top: 1px solid var(--rr-line); }
+.execution-controls p, .intervention-final { font-size: 12px; color: var(--rr-muted); }
+.intervention-error { padding: 12px 16px; border-left: 1px solid var(--rr-red); background: var(--rr-red-surface); font-size: 12px; }
+.intervention-error strong { color: var(--rr-red); }
+.intervention-error p { max-height: 160px; overflow-y: auto; white-space: pre-wrap; margin-top: 6px; }
+.approval-history .intervention-card { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); gap: 14px 24px; }
+.approval-history .intervention-heading { grid-column: 1 / -1; }
+.approval-history .intervention-playbook, .approval-history .intervention-details { margin: 0; }
+.approval-history .execution-controls, .approval-history .outcome-controls, .approval-history .intervention-error, .approval-history .intervention-final { grid-column: 1 / -1; }
+.outcome-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; padding-top: 12px; border-top: 1px solid var(--rr-line); }
+.execution-success { color: var(--rr-muted); font-size: 11px; flex-basis: 100%; }
+.outcome-heading { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.outcome-heading h4 { font-size: 12px; margin: 0; font-weight: 500; }
+.outcome-note { color: var(--rr-muted); font-size: 11px; }
+.outcome-actions { display: flex; flex-wrap: wrap; gap: 8px; flex-basis: 100%; }
+@media (min-width: 1200px) { .approval-queue .approval-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 1100px) { .approval-history .intervention-card { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 720px) {
-  .app-shell:has(.approvals-page) { grid-template-columns: minmax(0, 1fr); }
-  .app-shell:has(.approvals-page) .app-content { min-width: 0; padding: 20px 16px; }
+  .intervention-card { padding: 16px; }
+  .intervention-heading { flex-direction: column; gap: 10px; }
+  .intervention-details { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .operations-section-heading { align-items: start; flex-direction: column; gap: 4px; }
 }
+@media (max-width: 420px) { .intervention-details { grid-template-columns: minmax(0, 1fr); } }

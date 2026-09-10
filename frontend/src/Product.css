@@ -1,0 +1,65 @@
+/* Revenue Recovery OS: shared visual identity, scoped to the application shell. */
+#root:has(.rr-shell) { width: 100%; border: 0; text-align: left; }
+.rr-shell.app-shell { display: grid; grid-template-columns: 232px minmax(0, 1fr); min-height: 100svh; color: var(--rr-text); background: var(--rr-bg); font: 14px/1.5 "Segoe UI", sans-serif; letter-spacing: 0; color-scheme: var(--rr-scheme); }
+.rr-shell, .rr-shell * { box-sizing: border-box; }
+.rr-shell ::selection { color: var(--rr-selection-text); background: var(--rr-selection); }
+.rr-shell :focus-visible { outline: 2px solid var(--rr-blue); outline-offset: 4px; }
+.rr-shell input { caret-color: var(--rr-blue); }
+.rr-shell.app-shell .app-content { padding: 30px 36px 48px; min-width: 0; }
+.rr-shell.app-shell .sidebar { position: sticky; top: 0; height: 100svh; display: flex; flex-direction: column; padding: 30px 16px 20px; border-right: 1px solid var(--rr-line); background: var(--rr-sidebar); min-width: 0; }
+.product-identity { display: flex; align-items: center; gap: 9px; padding: 0 3px; }
+.product-mark { flex: 0 0 30px; width: 30px; height: 32px; color: var(--rr-blue); }
+.rr-shell.app-shell .sidebar h2 { font-size: 14px; font-weight: 650; line-height: 1.35; color: var(--rr-text); margin: 0 0 5px; letter-spacing: -.2px; }
+.product-identity h2 span { color: var(--rr-blue); }
+.rr-shell.app-shell .sidebar p { color: var(--rr-muted); font-size: 10px; margin: 0; }
+.navigation-label { color: var(--rr-muted); font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; margin: 46px 12px 14px; }
+.rr-shell.app-shell .sidebar nav { display: grid; gap: 6px; margin: 0; }
+.rr-shell.app-shell .sidebar a { display: flex; align-items: center; gap: 12px; padding: 11px 13px; color: var(--rr-muted); text-decoration: none; border-radius: 4px; font-size: 13px; }
+.rr-shell.app-shell .sidebar a.active { color: var(--rr-nav-text); background: var(--rr-nav); box-shadow: inset 2px 0 var(--rr-blue); }
+.rr-shell.app-shell .sidebar a.active .rr-icon { color: var(--rr-blue); }
+.rr-shell.app-shell .sidebar a:hover { color: var(--rr-text); background: var(--rr-hover); }
+.sidebar-footer { display: flex; gap: 9px; align-items: center; color: var(--rr-muted); margin-top: auto; padding: 16px 12px 0; font-size: 10px; border-top: 1px solid var(--rr-line); }
+.sidebar-footer > span:first-child { color: var(--rr-muted); border: 1px solid var(--rr-control-line); padding: 1px 5px; border-radius: 3px; }
+.rr-icon { display: inline-block; width: 18px; height: 18px; flex-shrink: 0; vertical-align: middle; }
+.rr-shell h1 { font-size: 32px; font-weight: 650; line-height: 1.2; letter-spacing: -.8px; margin: 8px 0; }
+.rr-shell .analytics-header, .rr-shell .operations-header { margin-bottom: 28px; padding-bottom: 24px; }
+.rr-shell .analytics-eyebrow, .rr-shell .operations-eyebrow { color: var(--rr-muted); font-size: 10px; letter-spacing: 1.5px; }
+.rr-shell button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 38px; font: inherit; font-size: 12px; border-radius: 4px; }
+.rr-shell button.primary { background: var(--rr-primary); color: var(--rr-primary-text); border-color: var(--rr-primary); }
+.rr-shell button.primary:hover:not(:disabled) { background: var(--rr-primary-hover); }
+.rr-text-action { display: inline-flex; align-items: center; gap: 8px; color: var(--rr-blue); font-size: 12px; text-decoration: none; }
+.rr-text-action:hover { text-decoration: underline; }
+.c360-badge { gap: 6px; font-size: 10px; letter-spacing: .2px; padding: 3px 7px; }
+.c360-badge::before { content: ""; width: 5px; height: 5px; flex: 0 0 5px; border-radius: 50%; background: currentColor; }
+.c360-badge--low, .c360-badge--neutral { color: var(--rr-low); background: var(--rr-neutral-surface); border-color: var(--rr-neutral-line); }
+.c360-badge--success { color: var(--rr-green); background: var(--rr-green-surface); border-color: var(--rr-green-line); }
+.c360-badge--medium, .c360-badge--high { color: var(--rr-amber); background: var(--rr-amber-surface); border-color: var(--rr-amber-line); }
+.c360-badge--critical { color: var(--rr-red); background: var(--rr-red-surface); border-color: var(--rr-red-line); }
+.c360-badge--info { color: var(--rr-blue); background: var(--rr-blue-surface); border-color: var(--rr-blue-line); }
+.semantic-dot { display: inline-block; width: 7px; height: 7px; flex: 0 0 7px; border-radius: 50%; background: var(--rr-low); vertical-align: middle; margin-right: 8px; }
+[data-level="low"] { --segment-color: var(--rr-low); }
+[data-level="medium"], [data-level="high"], [data-outcome="pending"] { --segment-color: var(--rr-amber); }
+[data-level="critical"], [data-outcome="not_recovered"] { --segment-color: var(--rr-red); }
+[data-level="uncalculated"] { --segment-color: var(--rr-uncalculated); }
+[data-outcome="recovered"] { --segment-color: var(--rr-green); }
+[data-outcome="sent"] { --segment-color: var(--rr-blue); }
+.semantic-dot { background: var(--segment-color, var(--rr-low)); }
+@media (max-width: 1100px) {
+  .rr-shell.app-shell { grid-template-columns: 196px minmax(0, 1fr); }
+  .rr-shell.app-shell .app-content { padding: 24px; }
+  .product-identity { gap: 6px; }
+  .product-mark { width: 25px; flex-basis: 25px; }
+}
+@media (max-width: 720px) {
+  .rr-shell.app-shell { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto 1fr; }
+  .rr-shell.app-shell .sidebar { position: static; height: auto; padding: 16px; border-right: 0; border-bottom: 1px solid var(--rr-line); }
+  .rr-shell.app-shell .sidebar h2 { font-size: 14px; }
+  .rr-shell.app-shell .sidebar p { display: block; }
+  .navigation-label, .sidebar-footer { display: none; }
+  .rr-shell.app-shell .sidebar nav { margin-top: 16px; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; }
+  .rr-shell.app-shell .sidebar a { flex-direction: column; gap: 5px; padding: 8px 3px; font-size: 10px; }
+  .rr-shell.app-shell .sidebar a.active { box-shadow: inset 0 -2px var(--rr-blue); }
+  .rr-shell.app-shell .app-content { padding: 24px 16px 32px; }
+  .rr-shell h1 { font-size: 28px; }
+}
+@media (prefers-reduced-motion: reduce) { .rr-shell *, .rr-shell *::before { scroll-behavior: auto; transition: none; animation: none; } }

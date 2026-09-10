@@ -1,0 +1,424 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-10T07:45:37.323913+00:00",
+  "title": "Design System: Revenue Recovery OS",
+  "extensions": {
+    "colorMeta": {
+      "rr-bg": {
+        "role": "neutral",
+        "displayName": "Bg",
+        "canonical": "#10151c",
+        "tonalRamp": [
+          "oklch(15.00% 0.01621 256.83)",
+          "oklch(26.43% 0.01621 256.83)",
+          "oklch(37.86% 0.01621 256.83)",
+          "oklch(49.29% 0.01621 256.83)",
+          "oklch(60.71% 0.01621 256.83)",
+          "oklch(72.14% 0.01621 256.83)",
+          "oklch(83.57% 0.01621 256.83)",
+          "oklch(95.00% 0.01621 256.83)"
+        ]
+      },
+      "rr-surface": {
+        "role": "neutral",
+        "displayName": "Surface",
+        "canonical": "#151d27",
+        "tonalRamp": [
+          "oklch(15.00% 0.02282 254.28)",
+          "oklch(26.43% 0.02282 254.28)",
+          "oklch(37.86% 0.02282 254.28)",
+          "oklch(49.29% 0.02282 254.28)",
+          "oklch(60.71% 0.02282 254.28)",
+          "oklch(72.14% 0.02282 254.28)",
+          "oklch(83.57% 0.02282 254.28)",
+          "oklch(95.00% 0.02282 254.28)"
+        ]
+      },
+      "rr-line": {
+        "role": "neutral",
+        "displayName": "Line",
+        "canonical": "#2b3542",
+        "tonalRamp": [
+          "oklch(15.00% 0.02691 255.13)",
+          "oklch(26.43% 0.02691 255.13)",
+          "oklch(37.86% 0.02691 255.13)",
+          "oklch(49.29% 0.02691 255.13)",
+          "oklch(60.71% 0.02691 255.13)",
+          "oklch(72.14% 0.02691 255.13)",
+          "oklch(83.57% 0.02691 255.13)",
+          "oklch(95.00% 0.02691 255.13)"
+        ]
+      },
+      "rr-text": {
+        "role": "neutral",
+        "displayName": "Text",
+        "canonical": "#e5eaf1",
+        "tonalRamp": [
+          "oklch(15.00% 0.01088 256.70)",
+          "oklch(26.43% 0.01088 256.70)",
+          "oklch(37.86% 0.01088 256.70)",
+          "oklch(49.29% 0.01088 256.70)",
+          "oklch(60.71% 0.01088 256.70)",
+          "oklch(72.14% 0.01088 256.70)",
+          "oklch(83.57% 0.01088 256.70)",
+          "oklch(95.00% 0.01088 256.70)"
+        ]
+      },
+      "rr-muted": {
+        "role": "neutral",
+        "displayName": "Muted",
+        "canonical": "#a2b0c2",
+        "tonalRamp": [
+          "oklch(15.00% 0.03030 254.72)",
+          "oklch(26.43% 0.03030 254.72)",
+          "oklch(37.86% 0.03030 254.72)",
+          "oklch(49.29% 0.03030 254.72)",
+          "oklch(60.71% 0.03030 254.72)",
+          "oklch(72.14% 0.03030 254.72)",
+          "oklch(83.57% 0.03030 254.72)",
+          "oklch(95.00% 0.03030 254.72)"
+        ]
+      },
+      "rr-blue": {
+        "role": "primary",
+        "displayName": "Blue",
+        "canonical": "#70b9ff",
+        "tonalRamp": [
+          "oklch(15.00% 0.12497 248.80)",
+          "oklch(26.43% 0.12497 248.80)",
+          "oklch(37.86% 0.12497 248.80)",
+          "oklch(49.29% 0.12497 248.80)",
+          "oklch(60.71% 0.12497 248.80)",
+          "oklch(72.14% 0.12497 248.80)",
+          "oklch(83.57% 0.12497 248.80)",
+          "oklch(95.00% 0.12497 248.80)"
+        ]
+      },
+      "rr-blue-surface": {
+        "role": "primary",
+        "displayName": "Blue Surface",
+        "canonical": "#1a3048",
+        "tonalRamp": [
+          "oklch(15.00% 0.05200 251.80)",
+          "oklch(26.43% 0.05200 251.80)",
+          "oklch(37.86% 0.05200 251.80)",
+          "oklch(49.29% 0.05200 251.80)",
+          "oklch(60.71% 0.05200 251.80)",
+          "oklch(72.14% 0.05200 251.80)",
+          "oklch(83.57% 0.05200 251.80)",
+          "oklch(95.00% 0.05200 251.80)"
+        ]
+      },
+      "rr-green": {
+        "role": "secondary",
+        "displayName": "Green",
+        "canonical": "#83cfb0",
+        "tonalRamp": [
+          "oklch(15.00% 0.08817 166.45)",
+          "oklch(26.43% 0.08817 166.45)",
+          "oklch(37.86% 0.08817 166.45)",
+          "oklch(49.29% 0.08817 166.45)",
+          "oklch(60.71% 0.08817 166.45)",
+          "oklch(72.14% 0.08817 166.45)",
+          "oklch(83.57% 0.08817 166.45)",
+          "oklch(95.00% 0.08817 166.45)"
+        ]
+      },
+      "rr-amber": {
+        "role": "secondary",
+        "displayName": "Amber",
+        "canonical": "#dfbf7c",
+        "tonalRamp": [
+          "oklch(15.00% 0.09285 84.93)",
+          "oklch(26.43% 0.09285 84.93)",
+          "oklch(37.86% 0.09285 84.93)",
+          "oklch(49.29% 0.09285 84.93)",
+          "oklch(60.71% 0.09285 84.93)",
+          "oklch(72.14% 0.09285 84.93)",
+          "oklch(83.57% 0.09285 84.93)",
+          "oklch(95.00% 0.09285 84.93)"
+        ]
+      },
+      "rr-red": {
+        "role": "secondary",
+        "displayName": "Red",
+        "canonical": "#f0959e",
+        "tonalRamp": [
+          "oklch(15.00% 0.11003 13.58)",
+          "oklch(26.43% 0.11003 13.58)",
+          "oklch(37.86% 0.11003 13.58)",
+          "oklch(49.29% 0.11003 13.58)",
+          "oklch(60.71% 0.11003 13.58)",
+          "oklch(72.14% 0.11003 13.58)",
+          "oklch(83.57% 0.11003 13.58)",
+          "oklch(95.00% 0.11003 13.58)"
+        ]
+      },
+      "rr-low": {
+        "role": "neutral",
+        "displayName": "Low",
+        "canonical": "#aab7c8",
+        "tonalRamp": [
+          "oklch(15.00% 0.02827 255.12)",
+          "oklch(26.43% 0.02827 255.12)",
+          "oklch(37.86% 0.02827 255.12)",
+          "oklch(49.29% 0.02827 255.12)",
+          "oklch(60.71% 0.02827 255.12)",
+          "oklch(72.14% 0.02827 255.12)",
+          "oklch(83.57% 0.02827 255.12)",
+          "oklch(95.00% 0.02827 255.12)"
+        ]
+      },
+      "rr-uncalculated": {
+        "role": "neutral",
+        "displayName": "Uncalculated",
+        "canonical": "#526173",
+        "tonalRamp": [
+          "oklch(15.00% 0.03442 253.16)",
+          "oklch(26.43% 0.03442 253.16)",
+          "oklch(37.86% 0.03442 253.16)",
+          "oklch(49.29% 0.03442 253.16)",
+          "oklch(60.71% 0.03442 253.16)",
+          "oklch(72.14% 0.03442 253.16)",
+          "oklch(83.57% 0.03442 253.16)",
+          "oklch(95.00% 0.03442 253.16)"
+        ]
+      },
+      "button-primary": {
+        "role": "primary",
+        "displayName": "Button Primary",
+        "canonical": "#90c8ff",
+        "tonalRamp": [
+          "oklch(15.00% 0.09747 248.66)",
+          "oklch(26.43% 0.09747 248.66)",
+          "oklch(37.86% 0.09747 248.66)",
+          "oklch(49.29% 0.09747 248.66)",
+          "oklch(60.71% 0.09747 248.66)",
+          "oklch(72.14% 0.09747 248.66)",
+          "oklch(83.57% 0.09747 248.66)",
+          "oklch(95.00% 0.09747 248.66)"
+        ]
+      },
+      "button-primary-hover": {
+        "role": "primary",
+        "displayName": "Button Primary Hover",
+        "canonical": "#aed7ff",
+        "tonalRamp": [
+          "oklch(15.00% 0.07067 248.02)",
+          "oklch(26.43% 0.07067 248.02)",
+          "oklch(37.86% 0.07067 248.02)",
+          "oklch(49.29% 0.07067 248.02)",
+          "oklch(60.71% 0.07067 248.02)",
+          "oklch(72.14% 0.07067 248.02)",
+          "oklch(83.57% 0.07067 248.02)",
+          "oklch(95.00% 0.07067 248.02)"
+        ]
+      },
+      "button-primary-text": {
+        "role": "primary",
+        "displayName": "Button Primary Text",
+        "canonical": "#101b28",
+        "tonalRamp": [
+          "oklch(15.00% 0.03023 253.21)",
+          "oklch(26.43% 0.03023 253.21)",
+          "oklch(37.86% 0.03023 253.21)",
+          "oklch(49.29% 0.03023 253.21)",
+          "oklch(60.71% 0.03023 253.21)",
+          "oklch(72.14% 0.03023 253.21)",
+          "oklch(83.57% 0.03023 253.21)",
+          "oklch(95.00% 0.03023 253.21)"
+        ]
+      },
+      "field-bg": {
+        "role": "neutral",
+        "displayName": "Field Bg",
+        "canonical": "#131d28",
+        "tonalRamp": [
+          "oklch(15.00% 0.02596 251.35)",
+          "oklch(26.43% 0.02596 251.35)",
+          "oklch(37.86% 0.02596 251.35)",
+          "oklch(49.29% 0.02596 251.35)",
+          "oklch(60.71% 0.02596 251.35)",
+          "oklch(72.14% 0.02596 251.35)",
+          "oklch(83.57% 0.02596 251.35)",
+          "oklch(95.00% 0.02596 251.35)"
+        ]
+      },
+      "nav-active": {
+        "role": "neutral",
+        "displayName": "Nav Active",
+        "canonical": "#1b2b3c",
+        "tonalRamp": [
+          "oklch(15.00% 0.03815 250.74)",
+          "oklch(26.43% 0.03815 250.74)",
+          "oklch(37.86% 0.03815 250.74)",
+          "oklch(49.29% 0.03815 250.74)",
+          "oklch(60.71% 0.03815 250.74)",
+          "oklch(72.14% 0.03815 250.74)",
+          "oklch(83.57% 0.03815 250.74)",
+          "oklch(95.00% 0.03815 250.74)"
+        ]
+      },
+      "nav-active-text": {
+        "role": "neutral",
+        "displayName": "Nav Active Text",
+        "canonical": "#cce6ff",
+        "tonalRamp": [
+          "oklch(15.00% 0.04402 247.26)",
+          "oklch(26.43% 0.04402 247.26)",
+          "oklch(37.86% 0.04402 247.26)",
+          "oklch(49.29% 0.04402 247.26)",
+          "oklch(60.71% 0.04402 247.26)",
+          "oklch(72.14% 0.04402 247.26)",
+          "oklch(83.57% 0.04402 247.26)",
+          "oklch(95.00% 0.04402 247.26)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "body": {
+        "displayName": "Body",
+        "purpose": "Shared application shell text."
+      },
+      "section-title": {
+        "displayName": "Section Title",
+        "purpose": "Compact section headings."
+      },
+      "control": {
+        "displayName": "Control",
+        "purpose": "Shared controls."
+      },
+      "supporting-metric": {
+        "displayName": "Supporting Metric",
+        "purpose": "Secondary operational measures."
+      }
+    },
+    "shadows": [],
+    "motion": [],
+    "breakpoints": [
+      {
+        "name": "small-phone",
+        "value": "420px"
+      },
+      {
+        "name": "mobile-navigation",
+        "value": "720px"
+      },
+      {
+        "name": "filter-columns",
+        "value": "900px"
+      },
+      {
+        "name": "compact-sidebar",
+        "value": "1100px"
+      },
+      {
+        "name": "pending-columns",
+        "value": "1200px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary button",
+      "kind": "button",
+      "description": "Primary button from the implemented M10.5 interface.",
+      "html": "<button class=\"ds-primary\">Approve</button>",
+      "css": ".ds-primary { min-height:38px;padding:8px 14px;border:1px solid #90c8ff;border-radius:4px;background:#90c8ff;color:#101b28;font:12px/1.5 \"Segoe UI\",sans-serif;cursor:pointer; } .ds-primary:hover:not(:disabled) { background:#aed7ff;filter:brightness(1.12); } .ds-primary:focus-visible { outline:2px solid var(--rr-blue,#70b9ff);outline-offset:4px; } .ds-primary:disabled { opacity:.55;cursor:not-allowed; }",
+      "refersTo": "button-primary"
+    },
+    {
+      "name": "Secondary button",
+      "kind": "button",
+      "description": "Secondary button from the implemented M10.5 interface.",
+      "html": "<button class=\"ds-secondary\">Refresh</button>",
+      "css": ".ds-secondary { min-height:38px;padding:8px 14px;border:1px solid #3b4859;border-radius:4px;background:#202c3b;color:#d8e3f2;font:12px/1.5 \"Segoe UI\",sans-serif;cursor:pointer; } .ds-secondary:hover:not(:disabled) { background:#304158;filter:brightness(1.12); } .ds-secondary:focus-visible { outline:2px solid var(--rr-blue,#70b9ff);outline-offset:4px; } .ds-secondary:disabled { opacity:.55;cursor:not-allowed; }"
+    },
+    {
+      "name": "Destructive button",
+      "kind": "button",
+      "description": "Destructive button from the implemented M10.5 interface.",
+      "html": "<button class=\"ds-destructive\">Reject</button>",
+      "css": ".ds-destructive { min-height:38px;padding:8px 14px;border:1px solid #63404b;border-radius:4px;background:transparent;color:#f2a7ad;font:12px/1.5 \"Segoe UI\",sans-serif;cursor:pointer; } .ds-destructive:hover:not(:disabled) { background:transparent;filter:brightness(1.12); } .ds-destructive:focus-visible { outline:2px solid var(--rr-blue,#70b9ff);outline-offset:4px; } .ds-destructive:disabled { opacity:.55;cursor:not-allowed; }"
+    },
+    {
+      "name": "Customer field",
+      "kind": "input",
+      "description": "Customer field from the implemented M10.5 interface.",
+      "html": "<label class=\"ds-label\">Owner<input class=\"ds-field\" placeholder=\"Search customers\" /></label>",
+      "css": ".ds-label {display:grid;gap:7px;color:var(--rr-muted,#a2b0c2);font:11px/1.5 \"Segoe UI\",sans-serif}.ds-field {min-height:38px;padding:8px 10px;border:1px solid #3b4859;border-radius:4px;background:#131d28;color:var(--rr-text,#e5eaf1);font:12px \"Segoe UI\",sans-serif}.ds-field::placeholder {color:var(--rr-muted,#a2b0c2)}.ds-field:focus-visible {outline:2px solid var(--rr-blue,#70b9ff);outline-offset:4px}",
+      "refersTo": "customer-field"
+    },
+    {
+      "name": "Active navigation",
+      "kind": "nav",
+      "description": "Active navigation from the implemented M10.5 interface.",
+      "html": "<a class=\"ds-nav\" href=\"#dashboard\" aria-current=\"page\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z\"/></svg>Dashboard</a>",
+      "css": ".ds-nav {display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:4px;color:#cce6ff;background:#1b2b3c;box-shadow:inset 2px 0 var(--rr-blue,#70b9ff);text-decoration:none;font:13px/1.5 \"Segoe UI\",sans-serif}.ds-nav svg {color:var(--rr-blue,#70b9ff)}.ds-nav:hover {background:#1b2633;color:var(--rr-text,#e5eaf1)}.ds-nav:focus-visible {outline:2px solid var(--rr-blue,#70b9ff);outline-offset:4px}",
+      "refersTo": "nav-active"
+    },
+    {
+      "name": "Pending status",
+      "kind": "chip",
+      "description": "Pending status from the implemented M10.5 interface.",
+      "html": "<span class=\"ds-status\">Pending</span>",
+      "css": ".ds-status {display:inline-flex;align-items:center;gap:6px;padding:3px 7px;border:1px solid #5b4c2c;border-radius:999px;color:var(--rr-amber,#dfbf7c);background:#302b20;font:10px/1.5 \"Segoe UI\",sans-serif;letter-spacing:.2px}.ds-status::before {content:\"\";width:5px;height:5px;border-radius:50%;background:currentColor}"
+    },
+    {
+      "name": "Decision surface",
+      "kind": "card",
+      "description": "Decision surface from the implemented M10.5 interface.",
+      "html": "<article class=\"ds-decision\"><h3>Awaiting review</h3><p>Review the recommendation before approving an intervention.</p></article>",
+      "css": ".ds-decision {padding:18px 20px;border-left:1px solid var(--rr-amber,#dfbf7c);background:#151e28;color:var(--rr-text,#e5eaf1);font:12px/1.5 \"Segoe UI\",sans-serif}.ds-decision h3 {font-size:16px;font-weight:600;margin:0}.ds-decision p {color:var(--rr-muted,#a2b0c2)}"
+    },
+    {
+      "name": "Customer initials",
+      "kind": "custom",
+      "description": "Customer initials from the implemented M10.5 interface.",
+      "html": "<span class=\"ds-initials\" aria-label=\"Customer initials\">JD</span>",
+      "css": ".ds-initials {display:inline-flex;justify-content:center;align-items:center;width:30px;height:30px;border:1px solid #36506b;border-radius:5px;color:#a9cbea;background:#192939;font:500 10px \"Segoe UI\",sans-serif}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Recovery Workspace",
+    "overview": "A premium dark operations interface built around quiet surfaces, clear numerical hierarchy, and a restrained blue signal. Dividers and spacing organize information; semantic color identifies risk, execution, and recovery without replacing text labels.\n\nThe shared identity connects Dashboard, Customers, Approvals, Analytics, and the established Customer 360. It supports an operator reading evidence and making decisions. This is a record of the implemented M10.5 visual system, not a new product specification; PRODUCT.md remains the authority for product behavior.",
+    "keyCharacteristics": [
+      "Dark tonal surfaces with fine dividers.",
+      "Restrained blue identity and stroke icons.",
+      "Large numerical anchors with compact supporting detail.",
+      "Semantic status color paired with explicit labels.",
+      "Flat analytical sections and selective decision surfaces."
+    ],
+    "rules": [
+      {
+        "name": "The Labeled Signal Rule",
+        "body": "Pair semantic color with a visible status label or legend and count; color alone does not explain a state.",
+        "section": "colors"
+      },
+      {
+        "name": "The Numerical Hierarchy Rule",
+        "body": "Give the page's principal operational measure more visual weight than supporting counts; align repeated numeric values using tabular figures.",
+        "section": "typography"
+      },
+      {
+        "name": "The Section First Rule",
+        "body": "Use spacing and dividers for analytical grouping; use filled containers selectively for decision records, checkpoints, and feedback states.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do use the shared blue signal and inline stroke icon family.",
+      "Do keep analytical sections flat and distinguish primary metrics from supporting counts.",
+      "Do pair status colors with labels and expose the counts behind charts.",
+      "Do preserve keyboard focus, responsive reflow, and local table scrolling.",
+      "Do follow the established Customer 360 architecture for account details."
+    ],
+    "donts": [
+      "Don't invent chart trends, counts, or recovery outcomes for visual effect.",
+      "Don't treat uncalculated accounts as low risk or omit their coverage context.",
+      "Don't equate a sent intervention with a recovered customer.",
+      "Don't replace the product mark or interface SVGs with decorative glyph icons.",
+      "Don't turn the current flat analytical composition into a wall of identical filled cards."
+    ]
+  }
+}

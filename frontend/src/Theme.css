@@ -1,0 +1,99 @@
+/* Semantic palette shared by every route. Dark retains the M10.5 identity. */
+:root {
+  --rr-scheme: dark;
+  --rr-bg: #10151c;
+  --rr-surface: #151d27;
+  --rr-sidebar: #121a23;
+  --rr-line: #2b3542;
+  --rr-text: #e5eaf1;
+  --rr-muted: #a2b0c2;
+  --rr-blue: #70b9ff;
+  --rr-blue-surface: #1a3048;
+  --rr-blue-line: #385b7d;
+  --rr-green: #83cfb0;
+  --rr-green-surface: #1c302a;
+  --rr-green-line: #345b4e;
+  --rr-amber: #dfbf7c;
+  --rr-amber-surface: #302b20;
+  --rr-amber-line: #5b4c2c;
+  --rr-red: #f0959e;
+  --rr-red-surface: #35242c;
+  --rr-red-line: #65404b;
+  --rr-low: #aab7c8;
+  --rr-uncalculated: #748296;
+  --rr-neutral-surface: #202b38;
+  --rr-neutral-line: #526173;
+  --rr-field: #131d28;
+  --rr-control: #202c3b;
+  --rr-control-line: #61748b;
+  --rr-control-hover-line: #829bb8;
+  --rr-hover: #1b2b3c;
+  --rr-nav: #1b2b3c;
+  --rr-nav-text: #cce6ff;
+  --rr-table-head: #141e29;
+  --rr-track: #273342;
+  --rr-primary: #90c8ff;
+  --rr-primary-text: #101b28;
+  --rr-primary-hover: #aed7ff;
+  --rr-selection: #285984;
+  --rr-selection-text: #fff;
+}
+:root[data-theme="light"] {
+  --rr-scheme: light;
+  --rr-bg: #f6f8fa;
+  --rr-surface: #ffffff;
+  --rr-sidebar: #edf1f5;
+  --rr-line: #d3dbe4;
+  --rr-text: #1c2939;
+  --rr-muted: #526277;
+  --rr-blue: #185b96;
+  --rr-blue-surface: #e6f0fa;
+  --rr-blue-line: #9ab9d8;
+  --rr-green: #21664c;
+  --rr-green-surface: #e5f2eb;
+  --rr-green-line: #9cc7b2;
+  --rr-amber: #795316;
+  --rr-amber-surface: #faf0da;
+  --rr-amber-line: #ccb782;
+  --rr-red: #a23949;
+  --rr-red-surface: #fbecef;
+  --rr-red-line: #d6a2ab;
+  --rr-low: #54677e;
+  --rr-uncalculated: #8391a3;
+  --rr-neutral-surface: #eaf0f5;
+  --rr-neutral-line: #a1afbf;
+  --rr-field: #ffffff;
+  --rr-control: #edf2f7;
+  --rr-control-line: #8292a5;
+  --rr-control-hover-line: #526b88;
+  --rr-hover: #e5edf6;
+  --rr-nav: #dce9f6;
+  --rr-nav-text: #174e81;
+  --rr-table-head: #eaf0f5;
+  --rr-track: #dce3eb;
+  --rr-primary: #205e98;
+  --rr-primary-text: #ffffff;
+  --rr-primary-hover: #184b7b;
+  --rr-selection: #c4def5;
+  --rr-selection-text: #123a60;
+}
+:root[data-theme] { color-scheme: var(--rr-scheme); background: var(--rr-bg); color: var(--rr-text); }
+.rr-shell { scrollbar-color: var(--rr-control-line) var(--rr-bg); }
+.rr-shell a { text-underline-offset: 4px; }
+.rr-shell button { border: 1px solid var(--rr-control-line); background: var(--rr-control); color: var(--rr-text); cursor: pointer; }
+.rr-shell button:not(:disabled):hover { background: var(--rr-hover); border-color: var(--rr-control-hover-line); }
+.rr-shell button.primary { font-weight: 600; }
+.rr-shell button.destructive { color: var(--rr-red); border-color: var(--rr-red); background: transparent; }
+.rr-shell button.destructive:hover:not(:disabled) { background: var(--rr-red-surface); }
+.rr-shell .theme-toggle { align-self: flex-start; margin: 24px 12px 0; padding: 8px 12px; min-height: 40px; }
+.rr-shell .navigation-label { margin-top: 28px; }
+.rr-shell .customer-table thead th { padding-block: 14px; font-size: 11px; }
+.rr-shell .customer-email, .rr-shell .intervention-details dt,
+.rr-shell .intervention-playbook > span, .rr-shell .intervention-recommendation > span { font-size: 11px; }
+.rr-shell .intervention-actions, .rr-shell .outcome-actions { gap: 10px; }
+.rr-shell .intervention-actions button, .rr-shell .outcome-actions button { min-height: 40px; }
+.rr-shell .c360-ai { background: var(--rr-surface); }
+.rr-shell .c360-metric dd { font-variant-numeric: tabular-nums; }
+@media (max-width: 720px) {
+  .rr-shell .theme-toggle { margin: 14px 0 0; }
+}

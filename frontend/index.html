@@ -4,7 +4,16 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>frontend</title>
+    <title>Revenue Recovery OS</title>
+    <script>
+      // Resolve before rendering so a saved choice never flashes the other theme.
+      (() => {
+        let saved;
+        try { saved = localStorage.getItem('rr-theme'); } catch { /* Storage may be blocked. */ }
+        document.documentElement.dataset.theme = saved === 'light' || saved === 'dark'
+          ? saved : window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

@@ -8,11 +8,13 @@ function readableLabel(value: string) {
 }
 
 export function StatusBadge({ value }: { value: string }) {
-  const tone = ["critical", "high", "medium", "low"].includes(
-    value.toLowerCase(),
-  )
-    ? value.toLowerCase()
-    : "neutral";
+  const tones: Record<string, string> = {
+    critical: "critical", high: "high", medium: "medium", low: "low",
+    failed: "critical", pending_approval: "medium", pending_outcome: "medium",
+    healthy: "success", recovered: "success", approved: "info", executing: "info", sent: "info",
+    not_recovered: "critical",
+  };
+  const tone = tones[value.toLowerCase()] ?? "neutral";
   return (
     <span className={`c360-badge c360-badge--${tone}`}>
       {readableLabel(value)}

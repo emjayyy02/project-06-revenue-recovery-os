@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { currency } from "../components/analyticsFormatting";
 import { Link, useParams } from "react-router-dom";
 
 import {
@@ -308,7 +309,7 @@ if (!id) {
         <dl className="c360-metrics">
           <MetricBlock label="Account value">
             <span className="c360-value">
-              ₱{customer.account_value.toLocaleString()}
+              {currency(customer.account_value)}
             </span>
           </MetricBlock>
           <MetricBlock label="Account owner">
