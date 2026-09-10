@@ -3,7 +3,7 @@ import worker from "../src/index";
 import { getRiskLevel } from "../src/services/risk-engine";
 
 const id = "90000000-0000-4000-8000-000000000001";
-const env = {
+const env = { APP_MODE: "development",
   SUPABASE_URL: "https://database.test", SUPABASE_SECRET_KEY: "test-key",
   N8N_INTERVENTION_WEBHOOK_URL: "https://automation.test/webhook",
 };

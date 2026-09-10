@@ -21,3 +21,9 @@ Thumbs.db
 # dev vars
 .dev.vars
 .dev.vars.*
+
+# tooling
+.claude
+.codex
+.impeccable
+PRODUCT.md

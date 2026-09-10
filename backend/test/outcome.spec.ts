@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import worker from "../src/index";
 
 const id = "90000000-0000-4000-8000-000000000001";
-const env = { SUPABASE_URL: "https://database.test", SUPABASE_SECRET_KEY: "test-key" };
+const env = { APP_MODE: "development", SUPABASE_URL: "https://database.test", SUPABASE_SECRET_KEY: "test-key" };
 const request = (body: unknown) => new Request(`https://worker.test/api/interventions/${id}/outcome`, {
   method: "POST", body: JSON.stringify(body), headers: { "Content-Type": "application/json" },
 });

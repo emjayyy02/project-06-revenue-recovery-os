@@ -1,3 +1,4 @@
+import { isDemoMode } from "../config";
 import { useEffect, useState } from "react";
 import { currency } from "../components/analyticsFormatting";
 import { Link, useParams } from "react-router-dom";
@@ -406,7 +407,7 @@ if (!id) {
                   <button
                     type="button"
                     onClick={handleRequestApproval}
-                    disabled={requestingApproval}
+                    disabled={isDemoMode || requestingApproval}
                   >
                     {requestingApproval
                       ? "Requesting..."

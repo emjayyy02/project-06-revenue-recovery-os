@@ -2,6 +2,8 @@ import { createClient } from "@supabase/supabase-js";
 import type { Database } from "../types/database";
 
 export interface Env {
+  APP_MODE?: string;
+  ALLOWED_ORIGINS?: string;
   SUPABASE_URL: string;
   SUPABASE_SECRET_KEY: string;
   OPENROUTER_API_KEY?: string;

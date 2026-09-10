@@ -1,4 +1,5 @@
 import { NavLink } from "react-router-dom";
+import { isDemoMode } from "../../config";
 import { ThemeToggle } from "../ThemeToggle";
 import { Icon, ProductMark, type IconName } from "../Icon";
 
@@ -17,6 +18,8 @@ export function Sidebar() {
     <nav aria-label="Main navigation">{navigation.map(item =>
       <NavLink key={item.path} to={item.path}><Icon name={item.icon} /><span>{item.label}</span></NavLink>
     )}</nav>
-    <div className="sidebar-footer"><span>V1</span><span>Demo environment</span></div>
+    <div className={`sidebar-footer${isDemoMode ? " demo-indicator" : ""}`}>{isDemoMode
+      ? <><span>Public demo</span><span>Actions disabled</span></>
+      : <><span>V1</span><span>Demo environment</span></>}</div>
   </aside>;
 }

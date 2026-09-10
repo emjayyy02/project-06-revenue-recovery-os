@@ -1,3 +1,4 @@
+import { assertActionsEnabled } from "../config";
 import type {
   AiAssistanceResponse,
   ApiResponse,
@@ -78,6 +79,7 @@ export async function createIntervention(payload: {
   recommended_action: string;
   draft_message?: string;
 }) {
+  assertActionsEnabled();
   const response = await fetch(
     `${API_BASE_URL}/api/interventions`,
     {
@@ -100,6 +102,7 @@ export async function createIntervention(payload: {
 }
 
 export async function approveIntervention(id: string) {
+  assertActionsEnabled();
   const response = await fetch(
     `${API_BASE_URL}/api/interventions/${id}/approve`,
     {
@@ -118,6 +121,7 @@ export async function approveIntervention(id: string) {
 }
 
 export async function rejectIntervention(id: string) {
+  assertActionsEnabled();
   const response = await fetch(
     `${API_BASE_URL}/api/interventions/${id}/reject`,
     {
@@ -151,6 +155,7 @@ export async function getAiAssistance(id: string) {
 }
 
 export async function executeIntervention(id: string) {
+  assertActionsEnabled();
   const response = await fetch(
     `${API_BASE_URL}/api/interventions/${id}/execute`,
     {
@@ -175,6 +180,7 @@ export async function getAnalytics() {
 }
 
 export async function recordInterventionOutcome(id: string, outcome: RecoveryOutcome) {
+  assertActionsEnabled();
   const response = await fetch(`${API_BASE_URL}/api/interventions/${id}/outcome`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },

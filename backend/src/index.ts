@@ -66,6 +66,16 @@ export default {
     }
 
     const url = new URL(request.url);
+    // Only explicit development mode permits business writes.
+    const isDemoMode = env.APP_MODE !== "development";
+    const isAssistance = request.method === "POST" &&
+      /^\/api\/customers\/([0-9a-f-]+)\/ai-assistance$/i.test(url.pathname);
+    if (isDemoMode && !["GET", "HEAD"].includes(request.method) && !isAssistance) {
+      return json({
+        error: "Actions are disabled in the public demo.",
+        code: "DEMO_READ_ONLY",
+      }, 403);
+    }
     const supabase = createSupabaseClient(env);
 
     try {
@@ -598,7 +608,7 @@ export default {
             occurred_at: event.occurred_at,
           })),
         },
-        env.OPENROUTER_API_KEY
+        isDemoMode ? undefined : env.OPENROUTER_API_KEY
       );
 
       return json({

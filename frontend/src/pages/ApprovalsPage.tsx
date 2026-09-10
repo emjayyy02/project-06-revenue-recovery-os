@@ -1,3 +1,4 @@
+import { isDemoMode } from "../config";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import {
@@ -174,7 +175,7 @@ export function ApprovalsPage() {
 
   const pending = interventions.filter(intervention => intervention.status === "pending_approval");
   const decided = interventions.filter(intervention => intervention.status !== "pending_approval");
-  const actionsDisabled = processingId !== null || refreshing || needsRefresh;
+  const actionsDisabled = isDemoMode || processingId !== null || refreshing || needsRefresh;
 
   function accountHeading(intervention: Intervention) {
     return <div className="intervention-heading">
