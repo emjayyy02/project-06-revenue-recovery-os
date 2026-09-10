@@ -182,7 +182,37 @@ The [analytics service](backend/src/services/analytics.ts) uses the latest score
 
 ## Screenshots
 
-Final production captures will cover Dashboard, Customers, Customer 360, Approvals, Analytics, and the sanitized n8n workflow. Existing verification captures are historical test evidence and are not presented as the final hosted snapshot. Explore the [Live Demo](https://revenue-recovery-os-et.vercel.app) for the current interface.
+Captured from the public demo on September 11, 2026, in dark mode at a 1440px desktop viewport. All data is fictional; business actions remain disabled.
+
+### Revenue Overview
+
+![Dashboard showing revenue exposure, risk distribution, coverage, and recovery activity](docs/assets/dashboard.png)
+
+₱1,569,000 exposed across seven at-risk accounts, with 24/24 accounts scored.
+
+### Explainable Customer Risk
+
+![Apex Digital Customer 360 showing critical risk, weighted signals, timeline, and recommended action](docs/assets/customer-360.png)
+
+Apex Digital's 75/100 score is explained by four visible signals. [View the full Customers workspace](docs/assets/customers.png).
+
+### Human-Approved Recovery Operations
+
+![Approvals showing pending, approved, sent, failed, and confirmed outcome records with disabled actions](docs/assets/approvals.png)
+
+Execution states remain separate from confirmed recovery outcomes.
+
+### Recovery Analytics
+
+![Analytics showing 50 percent recovery success, outcome distribution, coverage, and revenue exposure](docs/assets/analytics.png)
+
+Recovery success uses resolved interventions, not successful delivery alone.
+
+### External Execution Workflow
+
+![Local n8n canvas showing the six-node intervention executor](docs/assets/n8n-workflow.png)
+
+Current local canvas, captured without credential or endpoint details. Its Slack Error → Failure Callback connection is not present in the [sanitized public export](n8n/revenue-recovery-intervention-executor.json); the screenshot does not establish delivery guarantees.
 
 ## Local Development
 

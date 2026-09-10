@@ -75,7 +75,13 @@ I kept **risk level separate from customer health**. Risk is derived from events
 
 Revenue Exposure sums the account values of customers whose latest risk is High or Critical. It answers “how much account value needs attention?” rather than pretending to predict exact financial loss. Customer 360 maps eligible risk levels to existing playbooks; AI does not make that selection.
 
-<!-- Final Customer 360 and Dashboard screenshots will be added during M12.4. -->
+![Dashboard showing account-value exposure, risk distribution, and recovery activity](assets/dashboard.png)
+
+The public demo connects exposure with risk coverage and confirmed recovery activity.
+
+![Apex Digital Customer 360 with a 75/100 critical score and four explained risk signals](assets/customer-360.png)
+
+Apex Digital's signals, activity, recommendation, and pending intervention appear together. The [Customers workspace](assets/customers.png) provides the portfolio-wide account view.
 
 ## 7. Recovery Lifecycle
 
@@ -91,6 +97,10 @@ pending_approval
 The strongest modeling decision was separating technical execution status from business outcome. `sent` describes delivery; `recovered` and `not_recovered` belong to a separate outcome field. A message being sent does not prove that a customer recovered.
 
 Only a sent, unresolved intervention can receive a final outcome. Recovery success rate uses recovered interventions divided by resolved interventions, excluding those awaiting a decision. Recovered-customer counts are deduplicated. This prevents successful delivery from inflating business performance.
+
+![Approvals showing disabled decision controls, execution history, failure details, and separate business outcomes](assets/approvals.png)
+
+The seeded records show pending approval, approved, failed, and sent states alongside recovered and not-recovered outcomes. Public-demo actions are disabled.
 
 ## 8. Human Approval
 
@@ -113,6 +123,10 @@ The sanitized n8n workflow accepts a webhook, validates the payload, sends a Sla
 Before dispatch, the Worker sets `executing`, increments `execution_attempts`, records the attempt time, and clears the previous `execution_error`. Accepted webhook dispatch is not proof of completion: the application remains in progress until callback state is recorded. Start failures and failure callbacks record `failed`; an operator can retry a failed intervention.
 
 The boundary has real limitations. The export does not catch every Slack error, reconcile missing callbacks, or provide automatic retries and exactly-once delivery. A lost callback can leave execution unresolved. V1 exposes execution state and manual retry without claiming durable delivery guarantees it does not have.
+
+![Local n8n canvas showing validation, Slack notification, and success/failure callbacks](assets/n8n-workflow.png)
+
+The current local canvas includes a Slack Error → Failure Callback connection absent from the sanitized public export. Only the canvas is shown; credentials and endpoint details are not exposed, and this image is not proof of successful execution.
 
 ## 11. Reliability Decisions
 
@@ -149,7 +163,9 @@ The public snapshot is **fictional, sanitized portfolio data**, not real custome
 
 The fixed seed makes the demonstration reproducible. Its risk and analytics outputs are checked using the actual application functions rather than separately invented presentation values.
 
-<!-- Final Approvals and Analytics screenshots will be added during M12.4. -->
+![Analytics showing 50 percent recovery success, three outcome categories, risk coverage, and revenue exposure](assets/analytics.png)
+
+Captured from the public demo on September 11, 2026, at a 1440px desktop viewport in dark mode. These figures describe the fictional snapshot, not commercial performance.
 
 ## 14. The Hardest Problems I Solved
 
@@ -167,7 +183,7 @@ The fixed seed makes the demonstration reproducible. Its risk and analytics outp
 
 The backend suite passes **100 tests across seven files**, covering risk rules, analytics, intervention lifecycle, outcomes, demo-mode security, CORS, and error handling. Frontend build and lint, backend TypeScript checks, and the offline seed/security verifier provide additional checks.
 
-Earlier browser verification covered responsive layouts and operational states; these are historical checks, not a claim of a new browser audit for this document. Backend regression tests mock external HTTP and do not certify fresh Slack delivery. The prior live audit also observed a transient analytics 500 before repeated successful reads; its cause was not established.
+Earlier browser verification covered responsive layouts and operational states. The screenshots above were separately checked against the current public demo; this capture pass is not a new full responsive audit. Backend regression tests mock external HTTP and do not certify fresh Slack delivery. The prior live audit also observed a transient analytics 500 before repeated successful reads; its cause was not established.
 
 ## 16. Key Engineering Decisions
 
