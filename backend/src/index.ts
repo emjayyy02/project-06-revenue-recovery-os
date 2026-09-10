@@ -7,17 +7,26 @@ import {
 import { calculateRiskFromEvents } from "./services/risk-engine";
 import { generateAiAssistance } from "./services/ai-assistant";
 import { getAnalytics } from "./services/analytics";
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "http://localhost:5173",
-  "Access-Control-Allow-Headers": "Content-Type",
-  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-};
 
-function json(data: unknown, status = 200) {
-  return Response.json(data, {
-    status,
-    headers: corsHeaders,
+function getCorsHeaders(request: Request, env: Env) {
+  const headers = new Headers({
+    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+    Vary: "Origin",
   });
+  const origin = request.headers.get("Origin");
+  const allowedOrigins = new Set(
+    (env.ALLOWED_ORIGINS ?? "")
+      .split(",")
+      .map((allowedOrigin) => allowedOrigin.trim())
+      .filter((allowedOrigin) => allowedOrigin && !allowedOrigin.includes("*")),
+  );
+
+  if (origin && allowedOrigins.has(origin)) {
+    headers.set("Access-Control-Allow-Origin", origin);
+  }
+
+  return headers;
 }
 
 const interventionSchema = z.object({
@@ -58,14 +67,42 @@ const outcomeSchema = z.object({
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
+    const json = (data: unknown, status = 200) => Response.json(data, {
+      status,
+      headers: getCorsHeaders(request, env),
+    });
+    const internalError = (
+      context: string,
+      error: unknown,
+      status = 500,
+      publicMessage = "Internal server error",
+    ) => {
+      console.error("API request failed", { context, status, error });
+      return json({ error: publicMessage }, status);
+    };
+
     if (request.method === "OPTIONS") {
+      const origin = request.headers.get("Origin");
+      if (origin && !getCorsHeaders(request, env).has("Access-Control-Allow-Origin")) {
+        return json({ error: "Origin not allowed" }, 403);
+      }
+
       return new Response(null, {
         status: 204,
-        headers: corsHeaders,
+        headers: getCorsHeaders(request, env),
       });
     }
 
     const url = new URL(request.url);
+
+    // Health is Worker liveness and intentionally does not initialize the database.
+    if (request.method === "GET" && url.pathname === "/api/health") {
+      return json({
+        status: "ok",
+        service: "revenue-recovery-api",
+      });
+    }
+
     // Only explicit development mode permits business writes.
     const isDemoMode = env.APP_MODE !== "development";
     const isAssistance = request.method === "POST" &&
@@ -76,9 +113,9 @@ export default {
         code: "DEMO_READ_ONLY",
       }, 403);
     }
-    const supabase = createSupabaseClient(env);
-
     try {
+      const supabase = createSupabaseClient(env);
+
       if (request.method === "GET" && url.pathname === "/api/analytics") {
         return json({ data: await getAnalytics(supabase) });
       }
@@ -100,7 +137,7 @@ export default {
           .eq("id", interventionId)
           .maybeSingle();
 
-        if (existingError) return json({ error: existingError.message }, 500);
+        if (existingError) return internalError("read intervention outcome state", existingError);
         if (!existing) return json({ error: "Intervention not found" }, 404);
         if (existing.status !== "sent") {
           return json({ error: "Only sent interventions can have a recovery outcome recorded" }, 409);
@@ -123,20 +160,9 @@ export default {
           .select()
           .maybeSingle();
 
-        if (error) return json({ error: error.message }, 500);
+        if (error) return internalError("record intervention outcome", error);
         if (!data) return json({ error: "Intervention changed or its outcome was already resolved" }, 409);
         return json({ data });
-      }
-
-      // HEALTH
-      if (
-        request.method === "GET" &&
-        url.pathname === "/api/health"
-      ) {
-        return json({
-          status: "ok",
-          service: "revenue-recovery-api",
-        });
       }
 
       // ALL CUSTOMERS
@@ -150,7 +176,7 @@ export default {
           .order("company");
 
         if (error) {
-          return json({ error: error.message }, 500);
+          return internalError("list customers", error);
         }
 
         return json({ data });
@@ -171,7 +197,7 @@ export default {
           .order("occurred_at", { ascending: false });
 
         if (error) {
-          return json({ error: error.message }, 500);
+          return internalError("list customer events", error);
         }
 
         return json({ data });
@@ -193,7 +219,7 @@ export default {
           .maybeSingle();
 
         if (error) {
-          return json({ error: error.message }, 500);
+          return internalError("read customer", error);
         }
 
         if (!data) {
@@ -219,9 +245,9 @@ export default {
     		.eq("customer_id", customerId)
     		.order("occurred_at", { ascending: true });
 
- 	if (eventsError) {
-    	return json({ error: eventsError.message }, 500);
-  }
+    if (eventsError) {
+      return internalError("read events for risk recalculation", eventsError);
+    }
 
   		const result = calculateRiskFromEvents(
     		customerId,
@@ -233,9 +259,9 @@ export default {
     		.delete()
     		.eq("customer_id", customerId);
 
-  	if (clearSignalsError) {
-    	return json({ error: clearSignalsError.message }, 500);
-  }
+    if (clearSignalsError) {
+      return internalError("clear risk signals", clearSignalsError);
+    }
 
   	if (result.signals.length > 0) {
     	const { error: signalsError } = await supabase
@@ -243,7 +269,7 @@ export default {
       	.insert(result.signals);
 
     if (signalsError) {
-      return json({ error: signalsError.message }, 500);
+      return internalError("write risk signals", signalsError);
     }
   }
 
@@ -257,9 +283,9 @@ export default {
     		.select()
     		.single();
 
-  	if (scoreError) {
-    	return json({ error: scoreError.message }, 500);
-  }
+    if (scoreError) {
+      return internalError("write risk score", scoreError);
+    }
 
   		return json({
     		data: {
@@ -303,7 +329,7 @@ export default {
           .single();
 
         if (error) {
-          return json({ error: error.message }, 500);
+          return internalError("create customer event", error);
         }
 
         return json({ data }, 201);
@@ -325,7 +351,7 @@ export default {
           .maybeSingle();
 
       if (error) {
-        return json({ error: error.message }, 500);
+        return internalError("read customer risk", error);
       }
       return json({ data });
     }
@@ -345,7 +371,7 @@ export default {
           .order("weight", { ascending: false });
 
         if (error) {
-          return json({ error: error.message }, 500);
+          return internalError("read customer risk signals", error);
         }
 
         return json({ data });
@@ -374,7 +400,7 @@ export default {
           .order("created_at", { ascending: false });
 
         if (error) {
-          return json({ error: error.message }, 500);
+          return internalError("list interventions", error);
         }
         
       return json({ data });
@@ -410,7 +436,7 @@ export default {
         .maybeSingle();
 
       if (existingPendingError) {
-        return json({ error: existingPendingError.message }, 500);
+        return internalError("check pending intervention", existingPendingError);
       }
 
       if (existingPending) {
@@ -437,7 +463,7 @@ export default {
         .single();
 
       if (error) {
-        return json({ error: error.message }, 500);
+        return internalError("create intervention", error);
       }
 
       return json({ data }, 201);
@@ -457,7 +483,7 @@ export default {
         .maybeSingle();
 
       if (existingError) {
-        return json({ error: existingError.message }, 500);
+        return internalError("read intervention for approval", existingError);
       }
 
       if (!existing) {
@@ -482,7 +508,7 @@ export default {
         .single();
 
       if (error) {
-        return json({ error: error.message }, 500);
+        return internalError("approve intervention", error);
       }
 
       return json({ data });
@@ -502,7 +528,7 @@ export default {
         .maybeSingle();
 
       if (existingError) {
-        return json({ error: existingError.message }, 500);
+        return internalError("read intervention for rejection", existingError);
       }
 
       if (!existing) {
@@ -526,7 +552,7 @@ export default {
         .single();
 
       if (error) {
-        return json({ error: error.message }, 500);
+        return internalError("reject intervention", error);
       }
 
       return json({ data });
@@ -546,7 +572,7 @@ export default {
         .maybeSingle();
 
       if (customerError) {
-        return json({ error: customerError.message }, 500);
+        return internalError("read customer for assistance", customerError);
       }
 
       if (!customer) {
@@ -562,7 +588,7 @@ export default {
         .maybeSingle();
 
       if (riskError) {
-        return json({ error: riskError.message }, 500);
+        return internalError("read risk for assistance", riskError);
       }
 
       const { data: signals, error: signalsError } = await supabase
@@ -573,7 +599,7 @@ export default {
         .order("weight", { ascending: false });
 
       if (signalsError) {
-        return json({ error: signalsError.message }, 500);
+        return internalError("read signals for assistance", signalsError);
       }
 
       const { data: events, error: eventsError } = await supabase
@@ -584,7 +610,7 @@ export default {
         .limit(10);
 
       if (eventsError) {
-        return json({ error: eventsError.message }, 500);
+        return internalError("read events for assistance", eventsError);
       }
 
       const result = await generateAiAssistance(
@@ -652,7 +678,7 @@ export default {
           .maybeSingle();
 
       if (interventionError) {
-        return json({ error: interventionError.message }, 500);
+        return internalError("read intervention for execution", interventionError);
       }
 
       if (!intervention) {
@@ -686,7 +712,7 @@ export default {
         .eq("id", interventionId);
 
       if (updateError) {
-        return json({ error: updateError.message }, 500);
+        return internalError("start intervention execution", updateError);
       }
 
       try {
@@ -740,12 +766,11 @@ export default {
           })
           .eq("id", interventionId);
 
-        return json(
-          {
-            error: "Failed to start automation",
-            details: message,
-          },
-          502
+        return internalError(
+          "call intervention automation webhook",
+          error,
+          502,
+          "Failed to start automation",
         );
       }
     }
@@ -781,7 +806,7 @@ export default {
           .maybeSingle();
 
       if (existingError) {
-        return json({ error: existingError.message }, 500);
+        return internalError("read intervention for execution result", existingError);
       }
 
       if (!existing) {
@@ -807,7 +832,7 @@ export default {
         .single();
 
       if (error) {
-        return json({ error: error.message }, 500);
+        return internalError("record intervention execution result", error);
       }
 
       return json({ data });
@@ -815,14 +840,7 @@ export default {
 
       return json({ error: "Not Found" }, 404);
     } catch (error) {
-      console.error(error);
-
-      return json(
-        {
-          error: "Internal Server Error",
-        },
-        500
-      );
+      return internalError("handle API request", error);
     }
   },
 };
