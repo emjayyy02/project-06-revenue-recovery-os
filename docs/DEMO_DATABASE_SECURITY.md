@@ -1,13 +1,14 @@
 # Development and public demo databases
 
-M11.3 prepares files only. No project has been created, linked, migrated, or seeded.
-The new migration is pending in the normal migration directory: do not run a
-blanket database push against the currently linked development project.
+The public V1 is deployed on Vercel with a Cloudflare Worker and a separate Demo
+Supabase database. This document describes its security model and the checks for
+maintaining or reproducing that environment. Confirm the database target before
+applying migrations; do not push blindly to the linked development project.
 
 | Environment | Database | Application behavior |
 |---|---|---|
 | Local development | Existing development Supabase | Explicit development modes preserve writes and integrations |
-| Future public portfolio | Separate demo Supabase | Worker demo mode exposes reads and deterministic assistance; denies business mutations |
+| Public portfolio | Separate demo Supabase | Worker demo mode exposes reads and deterministic assistance; denies business mutations |
 
 Separation prevents local testing from changing the portfolio snapshot. The
 browser calls the Worker and receives no Supabase key. The Worker holds
@@ -19,8 +20,8 @@ and [API security](https://supabase.com/docs/guides/api/securing-your-api).
 
 ## Inspected schema and required access
 
-Repository evidence: five existing migrations, generated database types, backend
-route handlers and analytics reads. No old migration is changed.
+Repository evidence: six migrations, generated database types, backend route
+handlers, analytics reads, and the offline seed/security verifier.
 
 | Table | Required service-role privileges | Current code use |
 |---|---|---|
@@ -55,14 +56,14 @@ Indexes, in addition to six primary-key indexes:
   `idx_interventions_playbook_id`; unique customer/playbook pair where status is
   `pending_approval` via `unique_pending_intervention_per_playbook`.
 
-Before the new migration, no repository migration enables RLS, defines policies,
-or changes grants. Ordinary SQL creation leaves RLS disabled. Hosted state is
-unverified. Config exposes `public`/`graphql_public`, has PostgreSQL 17, and retains
+The first five migrations do not enable RLS or change grants; the sixth adds
+the access boundary below. Config exposes `public`/`graphql_public`, has
+PostgreSQL 17, and retains
 the development `seed.sql`. The commented `auto_expose_new_tables` explanation
 mentions `postgres`, but neither it nor the migrations proves the actual
 object-creating login/role. There are no SET ROLE or ALTER OWNER statements.
 
-## Prepared migration
+## Database access migration
 
 `20260910090000_harden_application_table_access.sql` enables RLS on the six tables,
 revokes all table privileges from `anon`, `authenticated`, and PUBLIC, then
@@ -71,14 +72,14 @@ The revoke/regrant happens in one transaction. No policies, CASCADE clauses,
 schema changes, schema-wide revocations, or data changes are included.
 
 Do not add service-role policies. Check its BYPASSRLS attribute and effective
-privileges later. Seeding requires an owner/admin connection: application
+privileges when verifying a target. Seeding requires an owner/admin connection: application
 permissions intentionally do not allow inserting customers or playbooks.
 
 Default privileges are deliberately unchanged because the actual creator role is
 not established. Future tables require a separate review and explicit security
 configuration. Existing column grants, role inheritance, or hosted policy drift
 are also not established by this repository; the verification queries inspect
-effective table/column access before release. Stop for review if hosted state
+effective table/column access when verifying a target. Stop for review if hosted state
 differs; do not compensate with broad grants or revocations.
 
 ## Stable fictional snapshot
@@ -102,10 +103,10 @@ Any failure requires rollback; it must never be followed by partial manual inser
 Use a reviewed SQL runner with stop-on-error and rollback-on-error. Do not first
 run development `seed.sql` (it truncates and populates the tables).
 
-After future provisioning approval: confirm the separate project's identity,
+When provisioning a new demo copy: confirm the separate project's identity,
 review/apply the schema and security migration there, confirm six empty tables,
 then seed as owner/admin. Rebuilding a populated demo is a separate explicit
-decision; this milestone provides no deletion/reset procedure.
+decision; this guide provides no deletion/reset procedure.
 
 Offline check: `node supabase/verification/demo-data.cjs`. It uses already
 installed backend TypeScript, the real pure risk/analytics functions, and a narrow
@@ -113,7 +114,21 @@ literal SQL parser; it has no database/network client. `--write` regenerates onl
 the local demo SQL file after a deliberate source-data review. It never executes
 SQL. The development seed remains the source of fictional customer/event inputs.
 
-## M11.4 verification plan (not executed)
+## Verification evidence and repeatable checks
+
+The documentation audit on September 11, 2026 (Asia/Taipei) confirmed live Worker
+health, customer/intervention reads, analytics matching the seed, deterministic
+fallback, and a blocked mutation returning `403 / DEMO_READ_ONLY`. One analytics
+request returned a generic 500; the subsequent retry and five consecutive reads
+passed. Its cause was not established. The backend suite contains 100 tests
+across seven files.
+
+The offline verifier proves the checked-in SQL structure and grant matrix, not
+the current effective permissions of a hosted database. Direct anon/authenticated
+JWT probes and hosted privilege checks were not repeated during that audit.
+The following is a verification procedure, not a claim that every probe has been
+executed. Use an authorized isolated copy for writes and retain the public demo
+in read-only mode.
 
 1. Confirm the demo project identity independently before any connection or
    application. Never change the development link or existing credentials as a
