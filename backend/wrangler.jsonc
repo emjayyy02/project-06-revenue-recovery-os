@@ -13,7 +13,7 @@
 	"upload_source_maps": true,
 	"vars": {
 		"APP_MODE": "demo",
-		"ALLOWED_ORIGINS": "http://localhost:5173",
+		"ALLOWED_ORIGINS": "https://revenue-recovery-os-et.vercel.app",
 		"SUPABASE_URL": "https://uoovvdlvihdocwbaihen.supabase.co"
 	},
 	"secrets": {
